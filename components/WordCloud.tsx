@@ -103,7 +103,7 @@ export default function WordCloud({ words }: WordCloudProps) {
         className="w-full h-auto border border-gray-200 rounded-lg"
       />
       <div className="mt-4 text-sm text-gray-600">
-        Top words from "Best Part", "Improvements", and "Future Topics"
+        Top words from &quot;Best Part&quot;, &quot;Improvements&quot;, and &quot;Future Topics&quot;
       </div>
     </div>
   );

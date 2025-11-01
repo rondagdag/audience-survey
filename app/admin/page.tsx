@@ -67,7 +67,7 @@ export default function AdminPage() {
       } else {
         setError('Unable to verify admin credentials');
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -101,7 +101,7 @@ export default function AdminPage() {
       } else {
         setError(data.error || 'Failed to create session');
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -129,7 +129,7 @@ export default function AdminPage() {
       } else {
         setError(data.error || 'Failed to close session');
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -376,7 +376,7 @@ export default function AdminPage() {
                       key={index}
                       className="p-3 bg-gray-50 rounded-lg text-sm text-gray-700"
                     >
-                      "{feedback}"
+                      &quot;{feedback}&quot;
                     </div>
                   ))}
                 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useSessionStore, useUploadStore } from '@/lib/store';
 import confetti from 'canvas-confetti';
 
@@ -80,7 +80,7 @@ export default function SurveyUploader() {
         setError(data.error || 'Upload failed');
         setUploadError(data.error);
       }
-    } catch (err) {
+    } catch {
       const errorMessage = 'Failed to upload. Please try again.';
       setError(errorMessage);
       setUploadError(errorMessage);
@@ -123,6 +123,7 @@ export default function SurveyUploader() {
       ) : (
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={preview}
               alt="Survey preview"

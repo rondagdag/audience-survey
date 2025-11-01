@@ -22,7 +22,7 @@ interface UploadStore {
   resetUpload: () => void;
 }
 
-export const useSessionStore = create<SessionStore>((set, get) => ({
+export const useSessionStore = create<SessionStore>((set) => ({
   activeSession: null,
   sessions: [],
   setActiveSession: (session) => set({ activeSession: session }),

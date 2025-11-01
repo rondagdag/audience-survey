@@ -60,7 +60,7 @@ export interface AzureContentResult {
   analyzerId: string;
   apiVersion: string;
   createdAt: string;
-  warnings: any[];
+  warnings: unknown[];
   contents: Array<{
     markdown: string;
     fields: {
@@ -83,10 +83,10 @@ export interface AzureContentResult {
     startPageNumber: number;
     endPageNumber: number;
     unit: string;
-    pages: any[];
-    paragraphs: any[];
-    sections: any[];
-    tables: any[];
+    pages: unknown[];
+    paragraphs: unknown[];
+    sections: unknown[];
+    tables: unknown[];
   }>;
 }
 

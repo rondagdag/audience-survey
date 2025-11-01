@@ -237,7 +237,7 @@ class DataStore {
     
     // Add high-frequency phrases (appearing at least 2 times)
     Object.entries(phraseCounts)
-      .filter(([_, count]) => count >= 2)
+      .filter(([, count]) => count >= 2)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 15)
       .forEach(([text, value]) => {

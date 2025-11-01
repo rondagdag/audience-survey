@@ -4,7 +4,6 @@ import {
   AttendeeType,
   AILevel,
   AzureAIUsage,
-  PresentationFeedback,
 } from './types';
 
 /**
@@ -46,14 +45,14 @@ export class SurveyMapper {
     return result;
   }
 
-  private getStringField(field: any | undefined): string | undefined {
-    if (!field || field.type !== 'string') return undefined;
-    return field.valueString || undefined;
+  private getStringField(field: unknown): string | undefined {
+    if (!field || typeof field !== 'object' || !('type' in field) || field.type !== 'string') return undefined;
+    return 'valueString' in field && typeof field.valueString === 'string' ? field.valueString || undefined : undefined;
   }
 
-  private getIntegerField(field: any | undefined, defaultValue: number): number {
-    if (!field || field.type !== 'integer') return defaultValue;
-    const value = field.valueInteger;
+  private getIntegerField(field: unknown, defaultValue: number): number {
+    if (!field || typeof field !== 'object' || !('type' in field) || field.type !== 'integer') return defaultValue;
+    const value = 'valueInteger' in field ? field.valueInteger : undefined;
     return typeof value === 'number' ? value : defaultValue;
   }
 

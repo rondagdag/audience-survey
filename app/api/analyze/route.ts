@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     try {
       extraction = await azureService.analyzeImage(buffer);
-    } catch (azureError: any) {
+    } catch (azureError: unknown) {
       console.error('Azure AI error:', azureError);
       
       // Return user-friendly error

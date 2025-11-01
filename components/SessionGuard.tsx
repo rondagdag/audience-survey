@@ -1,7 +1,7 @@
 'use client';
 
 import { useSessionStore } from '@/lib/store';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 
 interface SessionGuardProps {
   children: ReactNode;
@@ -24,7 +24,7 @@ export default function SessionGuard({
               No Active Session
             </h2>
             <p className="text-gray-600 mb-4">
-              The speaker hasn't started a feedback session yet.
+              The speaker hasn&apos;t started a feedback session yet.
             </p>
             <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
               💡 <strong>Tip:</strong> This page will automatically update when a session becomes available. Keep this page open and wait for the speaker to begin.
