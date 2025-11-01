@@ -1,0 +1,77 @@
+{
+	"fieldSchema": {
+		"fields": {
+			"Role": {
+				"type": "string",
+				"method": "extract",
+				"description": "The role of the survey participant in the context of the presentation"
+			},
+			"YearsOfExperience": {
+				"type": "string",
+				"method": "extract",
+				"description": "The number of years the participant has experience in AI/ML"
+			},
+			"Industry": {
+				"type": "string",
+				"method": "extract",
+				"description": "The industry in which the participant works"
+			},
+			"AIKnowledgeLevel": {
+				"type": "string",
+				"method": "extract",
+				"description": "The participant's self-assessed level of knowledge in AI"
+			},
+			"UsedAzureAI": {
+				"type": "string",
+				"method": "extract",
+				"description": "Indicates whether the participant has used Azure AI before"
+			},
+			"TopicEngagement": {
+				"type": "integer",
+				"method": "extract",
+				"description": "Rating for how engaging the topic was"
+			},
+			"ConceptClarity": {
+				"type": "integer",
+				"method": "extract",
+				"description": "Rating for the clarity of the concepts presented"
+			},
+			"DemoUsefulness": {
+				"type": "integer",
+				"method": "extract",
+				"description": "Rating for the usefulness of the demos"
+			},
+			"SkillLevelAppropriateness": {
+				"type": "integer",
+				"method": "extract",
+				"description": "Rating for whether the skill level was appropriate"
+			},
+			"LearningOutcome": {
+				"type": "integer",
+				"method": "extract",
+				"description": "Rating for how much the participant learned"
+			},
+			"RecommendScore": {
+				"type": "integer",
+				"method": "extract",
+				"description": "The likelihood of the participant recommending the session, rated from 0 to 10"
+			},
+			"BestPart": {
+				"type": "string",
+				"method": "extract",
+				"description": "The part of the presentation the participant liked the most"
+			},
+			"ImprovementSuggestions": {
+				"type": "string",
+				"method": "extract",
+				"description": "Suggestions for improving the presentation"
+			},
+			"FutureTopics": {
+				"type": "string",
+				"method": "extract",
+				"description": "Topics the participant would like to see in future presentations"
+			}
+		},
+		"definitions": {}
+	}
+}

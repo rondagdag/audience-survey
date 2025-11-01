@@ -114,6 +114,59 @@ const sessions = dataStore.getAllSessions();
 - Session list: polls `/api/sessions` every 3 seconds
 - Clear intervals in cleanup functions
 
+## Testing
+
+### Playwright E2E Tests
+- **Location**: `tests/` directory (3 test suites)
+- **Configuration**: `playwright.config.ts` - runs on Chromium, Firefox, WebKit, and mobile viewports
+- **Auto-start**: Dev server automatically starts before tests via `webServer` config
+
+### Test Suites
+1. **admin.spec.ts**: Admin authentication, session CRUD, dashboard functionality
+2. **audience.spec.ts**: Upload flow, SessionGuard, mobile responsiveness, file validation
+3. **api.spec.ts**: Direct API testing (sessions, analyze, summary, export endpoints)
+
+### Testing Patterns
+```typescript
+// Create session helper (use in beforeEach):
+const adminPage = await context.newPage();
+await adminPage.goto('/admin');
+await adminPage.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+await adminPage.getByRole('button', { name: /login/i }).click();
+await adminPage.getByPlaceholder(/session name/i).fill('Test Session');
+await adminPage.getByRole('button', { name: /create session/i }).click();
+await adminPage.close();
+
+// Image upload helper:
+const fileInput = page.locator('input[type="file"]');
+await fileInput.setInputFiles({
+  name: 'survey.png',
+  mimeType: 'image/png',
+  buffer: Buffer.from('base64-encoded-1x1-png', 'base64'),
+});
+
+// API testing pattern:
+const response = await request.post('/api/sessions', {
+  data: { name: 'Test', adminSecret: 'demo-secret-123' },
+});
+expect(response.ok()).toBeTruthy();
+const data = await response.json();
+expect(data.success).toBeTruthy();
+```
+
+### Running Tests
+```bash
+npm run test:e2e        # Headless mode (CI/CD)
+npm run test:ui         # Interactive UI mode (development)
+npm run test:headed     # Watch browser execution
+npm run test:report     # View HTML report
+```
+
+### CI/CD Integration
+- **GitHub Actions**: `.github/workflows/playwright.yml` runs tests on push/PR
+- **Environment**: Creates `.env.local` with `ADMIN_SECRET=demo-secret-123` in CI
+- **Artifacts**: Uploads test reports for 30 days retention
+
 ## Deployment Notes
 
 - **Vercel**: Auto-detects Next.js, add env vars in dashboard

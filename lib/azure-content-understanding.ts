@@ -1,107 +1,102 @@
-import { AzureAIExtractionResult, SurveyResult } from './types';
+import { AzureAnalyzeResponse, AzureContentResult } from './types';
 
 // Azure AI Content Understanding REST API integration
 export class AzureContentUnderstandingService {
   private endpoint: string;
   private apiKey: string;
+  private analyzerId: string;
+  private apiVersion: string;
 
   constructor() {
     this.endpoint = process.env.AZURE_CONTENT_ENDPOINT || '';
     this.apiKey = process.env.AZURE_CONTENT_KEY || '';
+    this.analyzerId = process.env.AZURE_ANALYZER_ID || 'audience-survey';
+    this.apiVersion = '2025-05-01-preview';
 
     if (!this.endpoint || !this.apiKey) {
       console.warn('Azure Content Understanding credentials not configured');
     }
   }
 
-  async analyzeImage(imageBuffer: Buffer): Promise<AzureAIExtractionResult> {
+  async analyzeImage(imageBuffer: Buffer): Promise<AzureContentResult> {
     if (!this.endpoint || !this.apiKey) {
       throw new Error('Azure Content Understanding not configured');
     }
 
     try {
-      // Call Azure AI Content Understanding REST API
-      // Based on MS docs: POST {endpoint}/contentunderstanding/documents:analyze
-      const response = await fetch(
-        `${this.endpoint}/contentunderstanding/documents:analyze?api-version=2024-12-01-preview`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/octet-stream',
-            'Ocp-Apim-Subscription-Key': this.apiKey,
-          },
-          body: imageBuffer as unknown as BodyInit,
-        }
-      );
+      // Step 1: Start analysis
+      const analyzeUrl = `${this.endpoint}/contentunderstanding/analyzers/${this.analyzerId}:analyze?api-version=${this.apiVersion}&stringEncoding=utf16`;
+      
+      const response = await fetch(analyzeUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'Ocp-Apim-Subscription-Key': this.apiKey,
+          'x-ms-useragent': 'audience-survey-app',
+        },
+        body: imageBuffer as unknown as BodyInit,
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Azure API error: ${response.status} - ${errorText}`);
       }
 
-      const result = await response.json();
-      return this.parseAzureResponse(result);
+      // Step 2: Get operation location from header
+      const operationLocation = response.headers.get('operation-location');
+      if (!operationLocation) {
+        throw new Error('Operation location not found in response headers');
+      }
+
+      // Step 3: Poll for result
+      const result = await this.pollResult(operationLocation, 120, 2);
+      
+      if (!result.result) {
+        throw new Error('No result returned from Azure Content Understanding');
+      }
+
+      return result.result;
     } catch (error) {
       console.error('Azure Content Understanding error:', error);
       throw error;
     }
   }
 
-  private parseAzureResponse(azureResult: any): AzureAIExtractionResult {
-    // Parse Azure response into our format
-    // Extract text, checkboxes, and numbers from the analysis
-    const extracted: AzureAIExtractionResult = {
-      text: [],
-      checkboxes: [],
-      numbers: [],
-      confidence: 0.8, // Default confidence
+  private async pollResult(
+    operationLocation: string,
+    timeoutSeconds: number = 120,
+    pollingIntervalSeconds: number = 2
+  ): Promise<AzureAnalyzeResponse> {
+    const startTime = Date.now();
+    const headers = {
+      'Ocp-Apim-Subscription-Key': this.apiKey,
     };
 
-    // Extract text content (OCR results)
-    if (azureResult.analyzeResult?.readResults) {
-      const allText: string[] = [];
-      azureResult.analyzeResult.readResults.forEach((page: any) => {
-        page.lines?.forEach((line: any) => {
-          allText.push(line.text);
-        });
-      });
-      extracted.text = allText;
-    }
-
-    // Extract form fields (checkboxes and numbers)
-    if (azureResult.analyzeResult?.documentResults) {
-      azureResult.analyzeResult.documentResults.forEach((doc: any) => {
-        if (doc.fields) {
-          Object.entries(doc.fields).forEach(([key, field]: [string, any]) => {
-            if (field.type === 'selectionMark') {
-              extracted.checkboxes?.push({
-                label: key,
-                checked: field.valueSelectionMark === 'selected',
-              });
-            } else if (field.type === 'number') {
-              extracted.numbers?.push({
-                label: key,
-                value: field.valueNumber,
-              });
-            }
-          });
-        }
-      });
-    }
-
-    // Calculate average confidence
-    if (azureResult.analyzeResult?.readResults) {
-      const confidences = azureResult.analyzeResult.readResults.flatMap(
-        (page: any) =>
-          page.lines?.map((line: any) => line.confidence || 0) || []
-      );
-      if (confidences.length > 0) {
-        extracted.confidence =
-          confidences.reduce((sum: number, c: number) => sum + c, 0) /
-          confidences.length;
+    while (true) {
+      const elapsedTime = (Date.now() - startTime) / 1000;
+      
+      if (elapsedTime > timeoutSeconds) {
+        throw new Error(`Operation timed out after ${timeoutSeconds} seconds`);
       }
-    }
 
-    return extracted;
+      const response = await fetch(operationLocation, { headers });
+      
+      if (!response.ok) {
+        throw new Error(`Polling error: ${response.status}`);
+      }
+
+      const result: AzureAnalyzeResponse = await response.json();
+      const status = result.status.toLowerCase();
+
+      if (status === 'succeeded') {
+        console.log(`Analysis completed in ${elapsedTime.toFixed(2)} seconds`);
+        return result;
+      } else if (status === 'failed') {
+        throw new Error('Analysis failed');
+      }
+
+      // Still running, wait before next poll
+      await new Promise(resolve => setTimeout(resolve, pollingIntervalSeconds * 1000));
+    }
   }
 }

@@ -1,0 +1,3915 @@
+{
+	"id": "1c061ff4-dfe5-4640-92e8-0b48a752bbfb",
+	"status": "Succeeded",
+	"result": {
+		"analyzerId": "auto-labeling-model-1762015059189-457",
+		"apiVersion": "2025-05-01-preview",
+		"createdAt": "2025-11-01T16:38:58Z",
+		"warnings": [],
+		"contents": [
+			{
+				"markdown": "# Al Content Understanding - Presentation Feedback Survey\n\nThank you for attending! Please complete this quick survey and capture a photo to upload to the\nfeedback portal.\n\n\n## 1. About You\n\n☐\n\nStudent\n\n☐\n\nDeveloper\n\n☒\n\nManager\n\n☐\n\nResearcher\n\n☐\n\nHobbyist\n\n☐\n\nOther:\n\nYears of experience in AI/ML:\n\nIndustry:\nRETAIL\n\n\n### 2. Al Knowledge\n\nLevel:\n☐\nBeginner\n☒\nIntermediate\n☐\nAdvanced\n☐\nExpert\n\nUsed Azure Al before?\n☐\nYes\n☐\nNo\n\n☐\nPlanning to\n\n\n<table>\n<tr>\n<td colspan=\"6\">3. Presentation Feedback (1-5)</td>\n</tr>\n<tr>\n<td>Statement</td>\n<td>1</td>\n<td>2</td>\n<td>3</td>\n<td>4</td>\n<td>5</td>\n</tr>\n<tr>\n<td>Topic was engaging.</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☒</td>\n</tr>\n<tr>\n<td>Concepts were clear.</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☒</td>\n</tr>\n<tr>\n<td>Demos were useful.</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☒</td>\n</tr>\n<tr>\n<td>Right skill level.</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☒</td>\n</tr>\n<tr>\n<td>Learned something</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☐</td>\n<td>☒</td>\n</tr>\n</table>\n\n\nnew.\n\n\n## 4. Recommend Score (0-10)\n\nHow likely are you to recommend this session? (10 is highest)\n0\n☐\n☐\n1\n☐\n☐\n3\n4\n☐\n6\n2\n☐\n5\n☐\n7\n\n☐\n8\n\n☐\n\n9\n\n☐\n☒\n\n10\n\n\n## 5. Open Feedback\n\nBest part:\nDEMO\n\nImprove:\n\nNONE\n\nFuture topics:\n\nAUGMENTED INTELLIGENCE\n\nThank you! Please capture this survey image and submit to the web portal.\n",
+				"fields": {
+					"Role": {
+						"type": "string",
+						"valueString": "Manager"
+					},
+					"YearsOfExperience": {
+						"type": "string"
+					},
+					"Industry": {
+						"type": "string",
+						"valueString": "RETAIL"
+					},
+					"AIKnowledgeLevel": {
+						"type": "string",
+						"valueString": "Intermediate"
+					},
+					"UsedAzureAI": {
+						"type": "string"
+					},
+					"TopicEngagement": {
+						"type": "integer",
+						"valueInteger": 5
+					},
+					"ConceptClarity": {
+						"type": "integer",
+						"valueInteger": 5
+					},
+					"DemoUsefulness": {
+						"type": "integer",
+						"valueInteger": 5
+					},
+					"SkillLevelAppropriateness": {
+						"type": "integer",
+						"valueInteger": 5
+					},
+					"LearningOutcome": {
+						"type": "integer",
+						"valueInteger": 5
+					},
+					"RecommendScore": {
+						"type": "integer",
+						"valueInteger": 10
+					},
+					"BestPart": {
+						"type": "string",
+						"valueString": "DEMO"
+					},
+					"ImprovementSuggestions": {
+						"type": "string",
+						"valueString": "NONE"
+					},
+					"FutureTopics": {
+						"type": "string",
+						"valueString": "AUGMENTED INTELLIGENCE"
+					}
+				},
+				"kind": "document",
+				"startPageNumber": 1,
+				"endPageNumber": 1,
+				"unit": "pixel",
+				"pages": [
+					{
+						"pageNumber": 1,
+						"angle": 0.1334254,
+						"width": 1268,
+						"height": 2252,
+						"spans": [
+							{
+								"offset": 0,
+								"length": 1401
+							}
+						],
+						"words": [
+							{
+								"content": "Al",
+								"span": {
+									"offset": 2,
+									"length": 2
+								},
+								"confidence": 0.825,
+								"source": "D(1,222,466,243,466,243,491,221,491)"
+							},
+							{
+								"content": "Content",
+								"span": {
+									"offset": 5,
+									"length": 7
+								},
+								"confidence": 0.997,
+								"source": "D(1,251,466,334,467,334,492,251,491)"
+							},
+							{
+								"content": "Understanding",
+								"span": {
+									"offset": 13,
+									"length": 13
+								},
+								"confidence": 0.992,
+								"source": "D(1,342,467,496,467,496,492,342,492)"
+							},
+							{
+								"content": "-",
+								"span": {
+									"offset": 27,
+									"length": 1
+								},
+								"confidence": 0.995,
+								"source": "D(1,502,467,509,467,509,492,501,492)"
+							},
+							{
+								"content": "Presentation",
+								"span": {
+									"offset": 29,
+									"length": 12
+								},
+								"confidence": 0.992,
+								"source": "D(1,517,467,648,467,648,493,516,492)"
+							},
+							{
+								"content": "Feedback",
+								"span": {
+									"offset": 42,
+									"length": 8
+								},
+								"confidence": 0.994,
+								"source": "D(1,657,467,753,468,753,493,656,493)"
+							},
+							{
+								"content": "Survey",
+								"span": {
+									"offset": 51,
+									"length": 6
+								},
+								"confidence": 0.996,
+								"source": "D(1,760,468,831,469,831,494,759,493)"
+							},
+							{
+								"content": "Thank",
+								"span": {
+									"offset": 59,
+									"length": 5
+								},
+								"confidence": 0.995,
+								"source": "D(1,221,496,273,496,273,520,221,519)"
+							},
+							{
+								"content": "you",
+								"span": {
+									"offset": 65,
+									"length": 3
+								},
+								"confidence": 0.995,
+								"source": "D(1,278,496,306,497,306,520,278,520)"
+							},
+							{
+								"content": "for",
+								"span": {
+									"offset": 69,
+									"length": 3
+								},
+								"confidence": 0.994,
+								"source": "D(1,312,497,334,497,334,520,312,520)"
+							},
+							{
+								"content": "attending!",
+								"span": {
+									"offset": 73,
+									"length": 10
+								},
+								"confidence": 0.649,
+								"source": "D(1,339,497,417,497,417,520,339,520)"
+							},
+							{
+								"content": "Please",
+								"span": {
+									"offset": 84,
+									"length": 6
+								},
+								"confidence": 0.995,
+								"source": "D(1,423,497,478,497,478,521,423,520)"
+							},
+							{
+								"content": "complete",
+								"span": {
+									"offset": 91,
+									"length": 8
+								},
+								"confidence": 0.992,
+								"source": "D(1,483,497,556,497,555,521,483,521)"
+							},
+							{
+								"content": "this",
+								"span": {
+									"offset": 100,
+									"length": 4
+								},
+								"confidence": 0.992,
+								"source": "D(1,561,497,589,497,589,521,561,521)"
+							},
+							{
+								"content": "quick",
+								"span": {
+									"offset": 105,
+									"length": 5
+								},
+								"confidence": 0.995,
+								"source": "D(1,594,497,636,498,636,521,594,521)"
+							},
+							{
+								"content": "survey",
+								"span": {
+									"offset": 111,
+									"length": 6
+								},
+								"confidence": 0.992,
+								"source": "D(1,641,498,694,498,693,522,641,521)"
+							},
+							{
+								"content": "and",
+								"span": {
+									"offset": 118,
+									"length": 3
+								},
+								"confidence": 0.996,
+								"source": "D(1,699,498,728,498,728,522,699,522)"
+							},
+							{
+								"content": "capture",
+								"span": {
+									"offset": 122,
+									"length": 7
+								},
+								"confidence": 0.993,
+								"source": "D(1,734,498,792,498,792,522,733,522)"
+							},
+							{
+								"content": "a",
+								"span": {
+									"offset": 130,
+									"length": 1
+								},
+								"confidence": 0.994,
+								"source": "D(1,798,498,807,498,807,522,798,522)"
+							},
+							{
+								"content": "photo",
+								"span": {
+									"offset": 132,
+									"length": 5
+								},
+								"confidence": 0.996,
+								"source": "D(1,813,498,857,499,857,522,813,522)"
+							},
+							{
+								"content": "to",
+								"span": {
+									"offset": 138,
+									"length": 2
+								},
+								"confidence": 0.994,
+								"source": "D(1,862,499,877,499,877,522,862,522)"
+							},
+							{
+								"content": "upload",
+								"span": {
+									"offset": 141,
+									"length": 6
+								},
+								"confidence": 0.993,
+								"source": "D(1,882,499,935,499,934,522,882,522)"
+							},
+							{
+								"content": "to",
+								"span": {
+									"offset": 148,
+									"length": 2
+								},
+								"confidence": 0.993,
+								"source": "D(1,940,499,955,499,955,522,940,522)"
+							},
+							{
+								"content": "the",
+								"span": {
+									"offset": 151,
+									"length": 3
+								},
+								"confidence": 0.995,
+								"source": "D(1,960,499,986,499,986,522,960,522)"
+							},
+							{
+								"content": "feedback",
+								"span": {
+									"offset": 155,
+									"length": 8
+								},
+								"confidence": 0.995,
+								"source": "D(1,221,521,296,522,296,542,221,541)"
+							},
+							{
+								"content": "portal.",
+								"span": {
+									"offset": 164,
+									"length": 7
+								},
+								"confidence": 0.992,
+								"source": "D(1,302,522,351,522,351,542,302,542)"
+							},
+							{
+								"content": "1.",
+								"span": {
+									"offset": 177,
+									"length": 2
+								},
+								"confidence": 0.997,
+								"source": "D(1,222,567,239,567,239,587,222,587)"
+							},
+							{
+								"content": "About",
+								"span": {
+									"offset": 180,
+									"length": 5
+								},
+								"confidence": 0.995,
+								"source": "D(1,246,567,306,567,306,588,246,588)"
+							},
+							{
+								"content": "You",
+								"span": {
+									"offset": 186,
+									"length": 3
+								},
+								"confidence": 0.994,
+								"source": "D(1,311,567,350,567,350,588,311,588)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 191,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,223,601,237,601,237,615,223,615)"
+							},
+							{
+								"content": "Student",
+								"span": {
+									"offset": 194,
+									"length": 7
+								},
+								"confidence": 0.994,
+								"source": "D(1,242,599,309,599,309,618,242,617)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 203,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,316,601,330,601,330,615,316,615)"
+							},
+							{
+								"content": "Developer",
+								"span": {
+									"offset": 206,
+									"length": 9
+								},
+								"confidence": 0.995,
+								"source": "D(1,336,599,421,600,421,619,336,619)"
+							},
+							{
+								"content": "☒",
+								"span": {
+									"offset": 217,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,430,602,444,602,444,617,430,617)"
+							},
+							{
+								"content": "Manager",
+								"span": {
+									"offset": 220,
+									"length": 7
+								},
+								"confidence": 0.998,
+								"source": "D(1,448,600,523,601,523,620,448,619)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 229,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,532,602,546,602,546,616,532,616)"
+							},
+							{
+								"content": "Researcher",
+								"span": {
+									"offset": 232,
+									"length": 10
+								},
+								"confidence": 0.995,
+								"source": "D(1,551,601,647,601,647,619,551,619)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 244,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,656,602,669,602,669,616,656,616)"
+							},
+							{
+								"content": "Hobbyist",
+								"span": {
+									"offset": 247,
+									"length": 8
+								},
+								"confidence": 0.995,
+								"source": "D(1,674,600,747,600,747,620,674,619)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 257,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,755,602,769,602,769,616,755,616)"
+							},
+							{
+								"content": "Other:",
+								"span": {
+									"offset": 260,
+									"length": 6
+								},
+								"confidence": 0.993,
+								"source": "D(1,775,600,825,601,825,618,775,618)"
+							},
+							{
+								"content": "Years",
+								"span": {
+									"offset": 268,
+									"length": 5
+								},
+								"confidence": 0.994,
+								"source": "D(1,220,640,269,640,269,661,220,661)"
+							},
+							{
+								"content": "of",
+								"span": {
+									"offset": 274,
+									"length": 2
+								},
+								"confidence": 0.994,
+								"source": "D(1,275,640,290,640,290,661,275,661)"
+							},
+							{
+								"content": "experience",
+								"span": {
+									"offset": 277,
+									"length": 10
+								},
+								"confidence": 0.992,
+								"source": "D(1,295,640,382,640,381,661,295,661)"
+							},
+							{
+								"content": "in",
+								"span": {
+									"offset": 288,
+									"length": 2
+								},
+								"confidence": 0.995,
+								"source": "D(1,386,640,402,640,402,661,386,661)"
+							},
+							{
+								"content": "AI/ML:",
+								"span": {
+									"offset": 291,
+									"length": 6
+								},
+								"confidence": 0.913,
+								"source": "D(1,408,640,461,640,461,662,408,661)"
+							},
+							{
+								"content": "Industry:",
+								"span": {
+									"offset": 299,
+									"length": 9
+								},
+								"confidence": 0.977,
+								"source": "D(1,525,641,596,642,596,662,525,662)"
+							},
+							{
+								"content": "RETAIL",
+								"span": {
+									"offset": 309,
+									"length": 6
+								},
+								"confidence": 0.994,
+								"source": "D(1,623,631,724,632,724,658,623,659)"
+							},
+							{
+								"content": "2.",
+								"span": {
+									"offset": 322,
+									"length": 2
+								},
+								"confidence": 0.997,
+								"source": "D(1,220,685,239,686,239,707,220,707)"
+							},
+							{
+								"content": "Al",
+								"span": {
+									"offset": 325,
+									"length": 2
+								},
+								"confidence": 0.883,
+								"source": "D(1,245,686,264,686,264,707,245,707)"
+							},
+							{
+								"content": "Knowledge",
+								"span": {
+									"offset": 328,
+									"length": 9
+								},
+								"confidence": 0.995,
+								"source": "D(1,272,686,382,686,382,708,272,708)"
+							},
+							{
+								"content": "Level:",
+								"span": {
+									"offset": 339,
+									"length": 6
+								},
+								"confidence": 0.995,
+								"source": "D(1,219,718,271,718,271,737,219,737)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 346,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,281,720,295,720,295,735,281,735)"
+							},
+							{
+								"content": "Beginner",
+								"span": {
+									"offset": 348,
+									"length": 8
+								},
+								"confidence": 0.995,
+								"source": "D(1,300,719,376,719,376,739,300,739)"
+							},
+							{
+								"content": "☒",
+								"span": {
+									"offset": 357,
+									"length": 1
+								},
+								"confidence": 0.991,
+								"source": "D(1,385,720,399,720,399,736,385,736)"
+							},
+							{
+								"content": "Intermediate",
+								"span": {
+									"offset": 359,
+									"length": 12
+								},
+								"confidence": 0.963,
+								"source": "D(1,404,719,508,719,508,738,404,738)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 372,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,517,720,531,720,531,735,517,735)"
+							},
+							{
+								"content": "Advanced",
+								"span": {
+									"offset": 374,
+									"length": 8
+								},
+								"confidence": 0.994,
+								"source": "D(1,536,719,619,719,619,738,536,738)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 383,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,628,721,642,721,642,735,628,735)"
+							},
+							{
+								"content": "Expert",
+								"span": {
+									"offset": 385,
+									"length": 6
+								},
+								"confidence": 0.994,
+								"source": "D(1,647,719,702,719,702,738,647,738)"
+							},
+							{
+								"content": "Used",
+								"span": {
+									"offset": 393,
+									"length": 4
+								},
+								"confidence": 0.992,
+								"source": "D(1,220,762,263,762,263,783,220,783)"
+							},
+							{
+								"content": "Azure",
+								"span": {
+									"offset": 398,
+									"length": 5
+								},
+								"confidence": 0.993,
+								"source": "D(1,269,762,316,762,316,783,269,783)"
+							},
+							{
+								"content": "Al",
+								"span": {
+									"offset": 404,
+									"length": 2
+								},
+								"confidence": 0.956,
+								"source": "D(1,322,762,338,762,338,783,321,783)"
+							},
+							{
+								"content": "before?",
+								"span": {
+									"offset": 407,
+									"length": 7
+								},
+								"confidence": 0.992,
+								"source": "D(1,344,762,408,762,408,783,344,783)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 415,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,417,765,431,766,431,780,417,780)"
+							},
+							{
+								"content": "Yes",
+								"span": {
+									"offset": 417,
+									"length": 3
+								},
+								"confidence": 0.992,
+								"source": "D(1,435,764,470,764,470,782,435,781)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 421,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,479,766,493,766,493,780,479,780)"
+							},
+							{
+								"content": "No",
+								"span": {
+									"offset": 423,
+									"length": 2
+								},
+								"confidence": 0.996,
+								"source": "D(1,497,764,524,764,524,782,497,781)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 427,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,533,765,547,765,547,780,533,780)"
+							},
+							{
+								"content": "Planning",
+								"span": {
+									"offset": 429,
+									"length": 8
+								},
+								"confidence": 0.993,
+								"source": "D(1,553,763,623,763,623,784,552,784)"
+							},
+							{
+								"content": "to",
+								"span": {
+									"offset": 438,
+									"length": 2
+								},
+								"confidence": 0.997,
+								"source": "D(1,629,763,646,763,646,784,629,784)"
+							},
+							{
+								"content": "3.",
+								"span": {
+									"offset": 472,
+									"length": 2
+								},
+								"confidence": 0.992,
+								"source": "D(1,219,809,238,809,238,832,219,832)"
+							},
+							{
+								"content": "Presentation",
+								"span": {
+									"offset": 475,
+									"length": 12
+								},
+								"confidence": 0.992,
+								"source": "D(1,245,809,371,809,371,833,245,832)"
+							},
+							{
+								"content": "Feedback",
+								"span": {
+									"offset": 488,
+									"length": 8
+								},
+								"confidence": 0.993,
+								"source": "D(1,378,809,470,809,470,833,378,833)"
+							},
+							{
+								"content": "(1-5)",
+								"span": {
+									"offset": 497,
+									"length": 5
+								},
+								"confidence": 0.988,
+								"source": "D(1,477,809,527,810,527,833,476,833)"
+							},
+							{
+								"content": "Statement",
+								"span": {
+									"offset": 523,
+									"length": 9
+								},
+								"confidence": 0.995,
+								"source": "D(1,229,839,316,840,316,859,229,859)"
+							},
+							{
+								"content": "1",
+								"span": {
+									"offset": 542,
+									"length": 1
+								},
+								"confidence": 0.996,
+								"source": "D(1,362,841,374,841,374,857,362,858)"
+							},
+							{
+								"content": "2",
+								"span": {
+									"offset": 553,
+									"length": 1
+								},
+								"confidence": 0.995,
+								"source": "D(1,491,840,505,840,505,857,491,858)"
+							},
+							{
+								"content": "3",
+								"span": {
+									"offset": 564,
+									"length": 1
+								},
+								"confidence": 0.996,
+								"source": "D(1,623,839,636,839,636,858,623,858)"
+							},
+							{
+								"content": "4",
+								"span": {
+									"offset": 575,
+									"length": 1
+								},
+								"confidence": 0.992,
+								"source": "D(1,755,840,766,840,766,856,755,856)"
+							},
+							{
+								"content": "5",
+								"span": {
+									"offset": 586,
+									"length": 1
+								},
+								"confidence": 0.995,
+								"source": "D(1,885,839,896,838,896,856,885,857)"
+							},
+							{
+								"content": "Topic",
+								"span": {
+									"offset": 608,
+									"length": 5
+								},
+								"confidence": 0.992,
+								"source": "D(1,228,882,275,883,275,902,228,902)"
+							},
+							{
+								"content": "was",
+								"span": {
+									"offset": 614,
+									"length": 3
+								},
+								"confidence": 0.997,
+								"source": "D(1,279,883,313,883,313,902,279,902)"
+							},
+							{
+								"content": "engaging.",
+								"span": {
+									"offset": 618,
+									"length": 9
+								},
+								"confidence": 0.992,
+								"source": "D(1,228,908,310,908,310,928,228,928)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 637,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,363,887,377,887,378,902,363,902)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 648,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,495,886,509,886,509,901,495,901)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 659,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,626,886,641,886,641,901,626,901)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 670,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,756,885,771,885,771,900,756,900)"
+							},
+							{
+								"content": "☒",
+								"span": {
+									"offset": 681,
+									"length": 1
+								},
+								"confidence": 0.991,
+								"source": "D(1,886,884,901,884,901,901,886,901)"
+							},
+							{
+								"content": "Concepts",
+								"span": {
+									"offset": 703,
+									"length": 8
+								},
+								"confidence": 0.994,
+								"source": "D(1,229,948,308,948,308,968,229,968)"
+							},
+							{
+								"content": "were",
+								"span": {
+									"offset": 712,
+									"length": 4
+								},
+								"confidence": 0.992,
+								"source": "D(1,227,974,269,973,269,992,227,992)"
+							},
+							{
+								"content": "clear.",
+								"span": {
+									"offset": 717,
+									"length": 6
+								},
+								"confidence": 0.993,
+								"source": "D(1,274,974,319,973,319,992,274,992)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 733,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,363,952,377,952,377,968,363,968)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 744,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,495,952,509,952,509,967,495,967)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 755,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,627,951,641,951,641,966,627,966)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 766,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,757,950,772,950,772,966,757,966)"
+							},
+							{
+								"content": "☒",
+								"span": {
+									"offset": 777,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,887,950,902,950,902,966,888,965)"
+							},
+							{
+								"content": "Demos",
+								"span": {
+									"offset": 799,
+									"length": 5
+								},
+								"confidence": 0.996,
+								"source": "D(1,228,1015,287,1015,287,1034,228,1034)"
+							},
+							{
+								"content": "were",
+								"span": {
+									"offset": 805,
+									"length": 4
+								},
+								"confidence": 0.993,
+								"source": "D(1,292,1015,334,1015,334,1034,292,1034)"
+							},
+							{
+								"content": "useful.",
+								"span": {
+									"offset": 810,
+									"length": 7
+								},
+								"confidence": 0.992,
+								"source": "D(1,227,1040,284,1040,284,1058,227,1059)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 827,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,362,1019,377,1019,378,1035,363,1035)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 838,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,495,1019,510,1019,510,1034,495,1034)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 849,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,627,1018,642,1018,642,1033,627,1033)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 860,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,758,1017,773,1017,773,1032,758,1032)"
+							},
+							{
+								"content": "☒",
+								"span": {
+									"offset": 871,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,889,1016,903,1016,903,1030,889,1031)"
+							},
+							{
+								"content": "Right",
+								"span": {
+									"offset": 893,
+									"length": 5
+								},
+								"confidence": 0.995,
+								"source": "D(1,228,1081,272,1081,272,1102,228,1103)"
+							},
+							{
+								"content": "skill",
+								"span": {
+									"offset": 899,
+									"length": 5
+								},
+								"confidence": 0.994,
+								"source": "D(1,277,1081,309,1080,309,1102,277,1102)"
+							},
+							{
+								"content": "level.",
+								"span": {
+									"offset": 905,
+									"length": 6
+								},
+								"confidence": 0.992,
+								"source": "D(1,227,1107,271,1107,271,1125,227,1125)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 921,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,363,1086,377,1086,377,1101,363,1101)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 932,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,495,1086,509,1086,509,1101,496,1100)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 943,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,628,1085,643,1085,643,1100,628,1100)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 954,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,759,1083,774,1083,774,1099,759,1099)"
+							},
+							{
+								"content": "☒",
+								"span": {
+									"offset": 965,
+									"length": 1
+								},
+								"confidence": 0.991,
+								"source": "D(1,889,1082,904,1082,904,1100,889,1101)"
+							},
+							{
+								"content": "Learned",
+								"span": {
+									"offset": 987,
+									"length": 7
+								},
+								"confidence": 0.989,
+								"source": "D(1,226,1150,297,1149,297,1169,226,1169)"
+							},
+							{
+								"content": "something",
+								"span": {
+									"offset": 995,
+									"length": 9
+								},
+								"confidence": 0.996,
+								"source": "D(1,226,1175,314,1175,314,1195,226,1195)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1014,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,362,1153,377,1153,377,1169,362,1169)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1025,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,496,1153,510,1153,510,1168,496,1168)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1036,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,628,1152,643,1152,643,1167,628,1167)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1047,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,760,1150,775,1150,775,1166,760,1166)"
+							},
+							{
+								"content": "☒",
+								"span": {
+									"offset": 1058,
+									"length": 1
+								},
+								"confidence": 0.991,
+								"source": "D(1,891,1149,906,1149,907,1165,891,1165)"
+							},
+							{
+								"content": "new.",
+								"span": {
+									"offset": 1082,
+									"length": 4
+								},
+								"confidence": 0.989,
+								"source": "D(1,227,1202,267,1202,267,1218,227,1218)"
+							},
+							{
+								"content": "4.",
+								"span": {
+									"offset": 1092,
+									"length": 2
+								},
+								"confidence": 0.993,
+								"source": "D(1,216,1263,234,1263,234,1287,216,1287)"
+							},
+							{
+								"content": "Recommend",
+								"span": {
+									"offset": 1095,
+									"length": 9
+								},
+								"confidence": 0.992,
+								"source": "D(1,242,1263,367,1263,367,1287,242,1287)"
+							},
+							{
+								"content": "Score",
+								"span": {
+									"offset": 1105,
+									"length": 5
+								},
+								"confidence": 0.997,
+								"source": "D(1,374,1263,428,1262,428,1287,374,1287)"
+							},
+							{
+								"content": "(0-10)",
+								"span": {
+									"offset": 1111,
+									"length": 6
+								},
+								"confidence": 0.992,
+								"source": "D(1,435,1262,499,1262,499,1287,435,1287)"
+							},
+							{
+								"content": "How",
+								"span": {
+									"offset": 1119,
+									"length": 3
+								},
+								"confidence": 0.998,
+								"source": "D(1,216,1293,251,1293,251,1317,216,1317)"
+							},
+							{
+								"content": "likely",
+								"span": {
+									"offset": 1123,
+									"length": 6
+								},
+								"confidence": 0.994,
+								"source": "D(1,256,1293,301,1293,301,1317,256,1317)"
+							},
+							{
+								"content": "are",
+								"span": {
+									"offset": 1130,
+									"length": 3
+								},
+								"confidence": 0.997,
+								"source": "D(1,306,1293,330,1293,330,1317,306,1317)"
+							},
+							{
+								"content": "you",
+								"span": {
+									"offset": 1134,
+									"length": 3
+								},
+								"confidence": 0.994,
+								"source": "D(1,335,1293,368,1293,368,1317,335,1317)"
+							},
+							{
+								"content": "to",
+								"span": {
+									"offset": 1138,
+									"length": 2
+								},
+								"confidence": 0.998,
+								"source": "D(1,374,1292,389,1292,389,1316,374,1316)"
+							},
+							{
+								"content": "recommend",
+								"span": {
+									"offset": 1141,
+									"length": 9
+								},
+								"confidence": 0.995,
+								"source": "D(1,395,1292,492,1291,492,1315,395,1316)"
+							},
+							{
+								"content": "this",
+								"span": {
+									"offset": 1151,
+									"length": 4
+								},
+								"confidence": 0.992,
+								"source": "D(1,498,1291,526,1291,526,1315,498,1315)"
+							},
+							{
+								"content": "session?",
+								"span": {
+									"offset": 1156,
+									"length": 8
+								},
+								"confidence": 0.976,
+								"source": "D(1,532,1291,604,1290,604,1314,532,1315)"
+							},
+							{
+								"content": "(10",
+								"span": {
+									"offset": 1165,
+									"length": 3
+								},
+								"confidence": 0.998,
+								"source": "D(1,611,1290,636,1290,636,1314,611,1314)"
+							},
+							{
+								"content": "is",
+								"span": {
+									"offset": 1169,
+									"length": 2
+								},
+								"confidence": 0.995,
+								"source": "D(1,642,1290,655,1290,655,1314,642,1314)"
+							},
+							{
+								"content": "highest)",
+								"span": {
+									"offset": 1172,
+									"length": 8
+								},
+								"confidence": 0.994,
+								"source": "D(1,661,1290,727,1289,727,1313,660,1314)"
+							},
+							{
+								"content": "0",
+								"span": {
+									"offset": 1181,
+									"length": 1
+								},
+								"confidence": 0.891,
+								"source": "D(1,216,1344,230,1344,230,1364,216,1366)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1183,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,237,1346,254,1346,254,1363,237,1363)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1185,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,372,1344,388,1344,388,1362,372,1362)"
+							},
+							{
+								"content": "1",
+								"span": {
+									"offset": 1187,
+									"length": 1
+								},
+								"confidence": 0.995,
+								"source": "D(1,285,1344,298,1344,298,1364,285,1364)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1189,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,304,1345,321,1345,321,1362,304,1362)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1191,
+									"length": 1
+								},
+								"confidence": 0.986,
+								"source": "D(1,439,1344,456,1344,455,1361,439,1361)"
+							},
+							{
+								"content": "3",
+								"span": {
+									"offset": 1193,
+									"length": 1
+								},
+								"confidence": 0.996,
+								"source": "D(1,418,1342,433,1342,433,1363,418,1363)"
+							},
+							{
+								"content": "4",
+								"span": {
+									"offset": 1195,
+									"length": 1
+								},
+								"confidence": 0.997,
+								"source": "D(1,483,1341,499,1341,499,1361,483,1361)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1197,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,572,1342,589,1342,589,1360,572,1360)"
+							},
+							{
+								"content": "6",
+								"span": {
+									"offset": 1199,
+									"length": 1
+								},
+								"confidence": 0.993,
+								"source": "D(1,618,1340,634,1340,634,1360,618,1361)"
+							},
+							{
+								"content": "2",
+								"span": {
+									"offset": 1201,
+									"length": 1
+								},
+								"confidence": 0.992,
+								"source": "D(1,351,1343,366,1343,366,1364,350,1364)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1203,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,506,1343,523,1343,523,1360,506,1360)"
+							},
+							{
+								"content": "5",
+								"span": {
+									"offset": 1205,
+									"length": 1
+								},
+								"confidence": 0.996,
+								"source": "D(1,552,1340,566,1340,566,1362,552,1362)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1207,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,640,1341,655,1341,655,1358,640,1358)"
+							},
+							{
+								"content": "7",
+								"span": {
+									"offset": 1209,
+									"length": 1
+								},
+								"confidence": 0.995,
+								"source": "D(1,685,1339,700,1339,700,1359,685,1359)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1212,
+									"length": 1
+								},
+								"confidence": 0.983,
+								"source": "D(1,706,1341,722,1341,722,1358,706,1358)"
+							},
+							{
+								"content": "8",
+								"span": {
+									"offset": 1214,
+									"length": 1
+								},
+								"confidence": 0.997,
+								"source": "D(1,751,1339,766,1339,766,1359,751,1359)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1217,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,772,1340,788,1340,788,1357,772,1357)"
+							},
+							{
+								"content": "9",
+								"span": {
+									"offset": 1220,
+									"length": 1
+								},
+								"confidence": 0.993,
+								"source": "D(1,817,1337,832,1337,832,1358,817,1359)"
+							},
+							{
+								"content": "☐",
+								"span": {
+									"offset": 1223,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,838,1339,854,1339,855,1356,838,1356)"
+							},
+							{
+								"content": "☒",
+								"span": {
+									"offset": 1225,
+									"length": 1
+								},
+								"confidence": 0.989,
+								"source": "D(1,916,1338,933,1338,933,1356,916,1355)"
+							},
+							{
+								"content": "10",
+								"span": {
+									"offset": 1228,
+									"length": 2
+								},
+								"confidence": 0.998,
+								"source": "D(1,884,1336,910,1336,910,1357,884,1358)"
+							},
+							{
+								"content": "5.",
+								"span": {
+									"offset": 1236,
+									"length": 2
+								},
+								"confidence": 0.995,
+								"source": "D(1,215,1395,234,1395,234,1419,215,1419)"
+							},
+							{
+								"content": "Open",
+								"span": {
+									"offset": 1239,
+									"length": 4
+								},
+								"confidence": 0.992,
+								"source": "D(1,241,1395,294,1395,294,1419,241,1419)"
+							},
+							{
+								"content": "Feedback",
+								"span": {
+									"offset": 1244,
+									"length": 8
+								},
+								"confidence": 0.995,
+								"source": "D(1,302,1395,399,1393,399,1417,302,1419)"
+							},
+							{
+								"content": "Best",
+								"span": {
+									"offset": 1254,
+									"length": 4
+								},
+								"confidence": 0.993,
+								"source": "D(1,214,1427,254,1427,254,1448,214,1448)"
+							},
+							{
+								"content": "part:",
+								"span": {
+									"offset": 1259,
+									"length": 5
+								},
+								"confidence": 0.992,
+								"source": "D(1,259,1427,297,1427,297,1447,259,1447)"
+							},
+							{
+								"content": "DEMO",
+								"span": {
+									"offset": 1265,
+									"length": 4
+								},
+								"confidence": 0.987,
+								"source": "D(1,391,1414,499,1407,499,1439,392,1448)"
+							},
+							{
+								"content": "Improve:",
+								"span": {
+									"offset": 1271,
+									"length": 8
+								},
+								"confidence": 0.984,
+								"source": "D(1,215,1472,289,1472,289,1491,215,1492)"
+							},
+							{
+								"content": "NONE",
+								"span": {
+									"offset": 1281,
+									"length": 4
+								},
+								"confidence": 0.992,
+								"source": "D(1,440,1454,530,1450,530,1482,441,1486)"
+							},
+							{
+								"content": "Future",
+								"span": {
+									"offset": 1287,
+									"length": 6
+								},
+								"confidence": 0.995,
+								"source": "D(1,213,1515,269,1515,269,1536,213,1536)"
+							},
+							{
+								"content": "topics:",
+								"span": {
+									"offset": 1294,
+									"length": 7
+								},
+								"confidence": 0.992,
+								"source": "D(1,275,1515,330,1515,330,1537,274,1536)"
+							},
+							{
+								"content": "AUGMENTED",
+								"span": {
+									"offset": 1303,
+									"length": 9
+								},
+								"confidence": 0.964,
+								"source": "D(1,505,1497,696,1493,696,1528,505,1530)"
+							},
+							{
+								"content": "INTELLIGENCE",
+								"span": {
+									"offset": 1313,
+									"length": 12
+								},
+								"confidence": 0.985,
+								"source": "D(1,709,1493,980,1488,980,1523,709,1528)"
+							},
+							{
+								"content": "Thank",
+								"span": {
+									"offset": 1327,
+									"length": 5
+								},
+								"confidence": 0.996,
+								"source": "D(1,212,1559,263,1558,263,1583,212,1584)"
+							},
+							{
+								"content": "you!",
+								"span": {
+									"offset": 1333,
+									"length": 4
+								},
+								"confidence": 0.992,
+								"source": "D(1,268,1558,306,1558,306,1583,268,1583)"
+							},
+							{
+								"content": "Please",
+								"span": {
+									"offset": 1338,
+									"length": 6
+								},
+								"confidence": 0.995,
+								"source": "D(1,313,1558,370,1557,370,1582,314,1583)"
+							},
+							{
+								"content": "capture",
+								"span": {
+									"offset": 1345,
+									"length": 7
+								},
+								"confidence": 0.994,
+								"source": "D(1,376,1557,436,1556,436,1581,376,1582)"
+							},
+							{
+								"content": "this",
+								"span": {
+									"offset": 1353,
+									"length": 4
+								},
+								"confidence": 0.991,
+								"source": "D(1,441,1556,473,1555,473,1581,441,1581)"
+							},
+							{
+								"content": "survey",
+								"span": {
+									"offset": 1358,
+									"length": 6
+								},
+								"confidence": 0.995,
+								"source": "D(1,479,1555,530,1555,530,1580,479,1581)"
+							},
+							{
+								"content": "image",
+								"span": {
+									"offset": 1365,
+									"length": 5
+								},
+								"confidence": 0.995,
+								"source": "D(1,535,1555,590,1554,590,1579,535,1580)"
+							},
+							{
+								"content": "and",
+								"span": {
+									"offset": 1371,
+									"length": 3
+								},
+								"confidence": 0.998,
+								"source": "D(1,596,1554,626,1553,626,1579,596,1579)"
+							},
+							{
+								"content": "submit",
+								"span": {
+									"offset": 1375,
+									"length": 6
+								},
+								"confidence": 0.995,
+								"source": "D(1,632,1553,684,1553,684,1578,632,1579)"
+							},
+							{
+								"content": "to",
+								"span": {
+									"offset": 1382,
+									"length": 2
+								},
+								"confidence": 0.998,
+								"source": "D(1,689,1553,708,1552,708,1577,689,1578)"
+							},
+							{
+								"content": "the",
+								"span": {
+									"offset": 1385,
+									"length": 3
+								},
+								"confidence": 0.997,
+								"source": "D(1,713,1552,739,1552,739,1577,713,1577)"
+							},
+							{
+								"content": "web",
+								"span": {
+									"offset": 1389,
+									"length": 3
+								},
+								"confidence": 0.992,
+								"source": "D(1,744,1552,778,1551,778,1576,744,1577)"
+							},
+							{
+								"content": "portal.",
+								"span": {
+									"offset": 1393,
+									"length": 7
+								},
+								"confidence": 0.976,
+								"source": "D(1,784,1551,836,1551,836,1576,784,1576)"
+							}
+						],
+						"lines": [
+							{
+								"content": "Al Content Understanding - Presentation Feedback Survey",
+								"source": "D(1,222,466,831,468,831,493,221,491)",
+								"span": {
+									"offset": 2,
+									"length": 55
+								}
+							},
+							{
+								"content": "Thank you for attending! Please complete this quick survey and capture a photo to upload to the",
+								"source": "D(1,221,496,985,499,985,522,221,519)",
+								"span": {
+									"offset": 59,
+									"length": 95
+								}
+							},
+							{
+								"content": "feedback portal.",
+								"source": "D(1,221,521,351,522,351,542,221,541)",
+								"span": {
+									"offset": 155,
+									"length": 16
+								}
+							},
+							{
+								"content": "1. About You",
+								"source": "D(1,222,567,350,567,350,588,222,587)",
+								"span": {
+									"offset": 177,
+									"length": 12
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,223,601,237,601,237,615,223,615)",
+								"span": {
+									"offset": 191,
+									"length": 1
+								}
+							},
+							{
+								"content": "Student",
+								"source": "D(1,242,598,308,598,308,617,242,617)",
+								"span": {
+									"offset": 194,
+									"length": 7
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,316,601,330,601,330,615,316,615)",
+								"span": {
+									"offset": 203,
+									"length": 1
+								}
+							},
+							{
+								"content": "Developer",
+								"source": "D(1,336,599,421,599,421,619,336,618)",
+								"span": {
+									"offset": 206,
+									"length": 9
+								}
+							},
+							{
+								"content": "☒",
+								"source": "D(1,430,602,444,602,444,617,430,617)",
+								"span": {
+									"offset": 217,
+									"length": 1
+								}
+							},
+							{
+								"content": "Manager",
+								"source": "D(1,448,600,523,601,523,619,448,619)",
+								"span": {
+									"offset": 220,
+									"length": 7
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,532,602,546,602,546,616,532,616)",
+								"span": {
+									"offset": 229,
+									"length": 1
+								}
+							},
+							{
+								"content": "Researcher",
+								"source": "D(1,551,600,647,600,647,618,551,618)",
+								"span": {
+									"offset": 232,
+									"length": 10
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,656,602,669,602,669,616,656,616)",
+								"span": {
+									"offset": 244,
+									"length": 1
+								}
+							},
+							{
+								"content": "Hobbyist",
+								"source": "D(1,674,600,747,600,747,619,674,619)",
+								"span": {
+									"offset": 247,
+									"length": 8
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,755,602,769,602,769,616,755,616)",
+								"span": {
+									"offset": 257,
+									"length": 1
+								}
+							},
+							{
+								"content": "Other:",
+								"source": "D(1,775,600,825,600,825,618,775,618)",
+								"span": {
+									"offset": 260,
+									"length": 6
+								}
+							},
+							{
+								"content": "Years of experience in AI/ML:",
+								"source": "D(1,220,640,461,640,461,661,220,661)",
+								"span": {
+									"offset": 268,
+									"length": 29
+								}
+							},
+							{
+								"content": "Industry:",
+								"source": "D(1,525,641,595,642,595,662,525,661)",
+								"span": {
+									"offset": 299,
+									"length": 9
+								}
+							},
+							{
+								"content": "RETAIL",
+								"source": "D(1,623,631,723,631,723,658,623,659)",
+								"span": {
+									"offset": 309,
+									"length": 6
+								}
+							},
+							{
+								"content": "2. Al Knowledge",
+								"source": "D(1,220,685,382,686,381,708,220,707)",
+								"span": {
+									"offset": 322,
+									"length": 15
+								}
+							},
+							{
+								"content": "Level:",
+								"source": "D(1,219,718,271,718,271,737,219,737)",
+								"span": {
+									"offset": 339,
+									"length": 6
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,281,720,295,720,295,735,281,735)",
+								"span": {
+									"offset": 346,
+									"length": 1
+								}
+							},
+							{
+								"content": "Beginner",
+								"source": "D(1,300,719,375,718,375,738,300,739)",
+								"span": {
+									"offset": 348,
+									"length": 8
+								}
+							},
+							{
+								"content": "☒",
+								"source": "D(1,385,720,399,720,399,736,385,736)",
+								"span": {
+									"offset": 357,
+									"length": 1
+								}
+							},
+							{
+								"content": "Intermediate",
+								"source": "D(1,404,719,507,718,507,737,404,738)",
+								"span": {
+									"offset": 359,
+									"length": 12
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,517,720,531,720,531,735,517,735)",
+								"span": {
+									"offset": 372,
+									"length": 1
+								}
+							},
+							{
+								"content": "Advanced",
+								"source": "D(1,536,718,619,718,619,738,536,738)",
+								"span": {
+									"offset": 374,
+									"length": 8
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,628,721,642,721,642,735,628,735)",
+								"span": {
+									"offset": 383,
+									"length": 1
+								}
+							},
+							{
+								"content": "Expert",
+								"source": "D(1,647,719,701,719,702,738,647,738)",
+								"span": {
+									"offset": 385,
+									"length": 6
+								}
+							},
+							{
+								"content": "Used Azure Al before?",
+								"source": "D(1,220,762,408,762,408,783,220,782)",
+								"span": {
+									"offset": 393,
+									"length": 21
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,417,765,431,766,431,780,417,780)",
+								"span": {
+									"offset": 415,
+									"length": 1
+								}
+							},
+							{
+								"content": "Yes",
+								"source": "D(1,435,763,470,764,469,782,434,781)",
+								"span": {
+									"offset": 417,
+									"length": 3
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,479,766,493,766,493,780,479,780)",
+								"span": {
+									"offset": 421,
+									"length": 1
+								}
+							},
+							{
+								"content": "No",
+								"source": "D(1,497,764,523,764,523,781,497,781)",
+								"span": {
+									"offset": 423,
+									"length": 2
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,533,765,547,765,547,780,533,780)",
+								"span": {
+									"offset": 427,
+									"length": 1
+								}
+							},
+							{
+								"content": "Planning to",
+								"source": "D(1,553,763,645,763,645,784,552,784)",
+								"span": {
+									"offset": 429,
+									"length": 11
+								}
+							},
+							{
+								"content": "3. Presentation Feedback (1-5)",
+								"source": "D(1,219,808,527,809,526,833,219,832)",
+								"span": {
+									"offset": 472,
+									"length": 30
+								}
+							},
+							{
+								"content": "Statement",
+								"source": "D(1,229,839,316,840,316,859,229,858)",
+								"span": {
+									"offset": 523,
+									"length": 9
+								}
+							},
+							{
+								"content": "1",
+								"source": "D(1,362,841,373,841,373,857,362,857)",
+								"span": {
+									"offset": 542,
+									"length": 1
+								}
+							},
+							{
+								"content": "2",
+								"source": "D(1,491,840,505,840,505,858,491,858)",
+								"span": {
+									"offset": 553,
+									"length": 1
+								}
+							},
+							{
+								"content": "3",
+								"source": "D(1,623,839,636,839,636,858,623,858)",
+								"span": {
+									"offset": 564,
+									"length": 1
+								}
+							},
+							{
+								"content": "4",
+								"source": "D(1,755,840,765,840,765,856,755,855)",
+								"span": {
+									"offset": 575,
+									"length": 1
+								}
+							},
+							{
+								"content": "5",
+								"source": "D(1,885,838,895,839,895,856,885,856)",
+								"span": {
+									"offset": 586,
+									"length": 1
+								}
+							},
+							{
+								"content": "Topic was",
+								"source": "D(1,228,882,313,883,312,902,228,901)",
+								"span": {
+									"offset": 608,
+									"length": 9
+								}
+							},
+							{
+								"content": "engaging.",
+								"source": "D(1,228,908,310,908,310,928,228,927)",
+								"span": {
+									"offset": 618,
+									"length": 9
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,363,887,377,887,378,902,363,902)",
+								"span": {
+									"offset": 637,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,495,886,509,886,509,901,495,901)",
+								"span": {
+									"offset": 648,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,626,886,641,886,641,901,626,901)",
+								"span": {
+									"offset": 659,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,756,885,771,885,771,900,756,900)",
+								"span": {
+									"offset": 670,
+									"length": 1
+								}
+							},
+							{
+								"content": "☒",
+								"source": "D(1,886,884,901,884,901,901,886,901)",
+								"span": {
+									"offset": 681,
+									"length": 1
+								}
+							},
+							{
+								"content": "Concepts",
+								"source": "D(1,229,948,308,948,308,967,229,967)",
+								"span": {
+									"offset": 703,
+									"length": 8
+								}
+							},
+							{
+								"content": "were clear.",
+								"source": "D(1,227,974,318,973,318,992,227,992)",
+								"span": {
+									"offset": 712,
+									"length": 11
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,363,952,377,952,377,968,363,968)",
+								"span": {
+									"offset": 733,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,495,952,509,952,509,967,495,967)",
+								"span": {
+									"offset": 744,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,627,951,641,951,641,966,627,966)",
+								"span": {
+									"offset": 755,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,757,950,772,950,772,966,757,966)",
+								"span": {
+									"offset": 766,
+									"length": 1
+								}
+							},
+							{
+								"content": "☒",
+								"source": "D(1,887,950,902,950,902,966,888,965)",
+								"span": {
+									"offset": 777,
+									"length": 1
+								}
+							},
+							{
+								"content": "Demos were",
+								"source": "D(1,228,1015,333,1015,333,1034,228,1034)",
+								"span": {
+									"offset": 799,
+									"length": 10
+								}
+							},
+							{
+								"content": "useful.",
+								"source": "D(1,227,1040,283,1040,284,1058,227,1058)",
+								"span": {
+									"offset": 810,
+									"length": 7
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,362,1019,377,1019,378,1035,363,1035)",
+								"span": {
+									"offset": 827,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,495,1019,510,1019,510,1034,495,1034)",
+								"span": {
+									"offset": 838,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,627,1018,642,1018,642,1033,627,1033)",
+								"span": {
+									"offset": 849,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,758,1017,773,1017,773,1032,758,1032)",
+								"span": {
+									"offset": 860,
+									"length": 1
+								}
+							},
+							{
+								"content": "☒",
+								"source": "D(1,889,1016,903,1016,903,1030,889,1031)",
+								"span": {
+									"offset": 871,
+									"length": 1
+								}
+							},
+							{
+								"content": "Right skill",
+								"source": "D(1,227,1081,308,1080,309,1101,228,1102)",
+								"span": {
+									"offset": 893,
+									"length": 11
+								}
+							},
+							{
+								"content": "level.",
+								"source": "D(1,227,1107,271,1107,271,1125,227,1125)",
+								"span": {
+									"offset": 905,
+									"length": 6
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,363,1086,377,1086,377,1101,363,1101)",
+								"span": {
+									"offset": 921,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,495,1086,509,1086,509,1101,496,1100)",
+								"span": {
+									"offset": 932,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,628,1085,643,1085,643,1100,628,1100)",
+								"span": {
+									"offset": 943,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,759,1083,774,1083,774,1099,759,1099)",
+								"span": {
+									"offset": 954,
+									"length": 1
+								}
+							},
+							{
+								"content": "☒",
+								"source": "D(1,889,1082,904,1082,904,1100,889,1101)",
+								"span": {
+									"offset": 965,
+									"length": 1
+								}
+							},
+							{
+								"content": "Learned",
+								"source": "D(1,226,1150,296,1149,296,1168,226,1169)",
+								"span": {
+									"offset": 987,
+									"length": 7
+								}
+							},
+							{
+								"content": "something",
+								"source": "D(1,226,1175,314,1175,314,1195,226,1195)",
+								"span": {
+									"offset": 995,
+									"length": 9
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,362,1153,377,1153,377,1169,362,1169)",
+								"span": {
+									"offset": 1014,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,496,1153,510,1153,510,1168,496,1168)",
+								"span": {
+									"offset": 1025,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,628,1152,643,1152,643,1167,628,1167)",
+								"span": {
+									"offset": 1036,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,760,1150,775,1150,775,1166,760,1166)",
+								"span": {
+									"offset": 1047,
+									"length": 1
+								}
+							},
+							{
+								"content": "☒",
+								"source": "D(1,891,1149,906,1149,907,1165,891,1165)",
+								"span": {
+									"offset": 1058,
+									"length": 1
+								}
+							},
+							{
+								"content": "new.",
+								"source": "D(1,227,1201,266,1201,266,1218,227,1218)",
+								"span": {
+									"offset": 1082,
+									"length": 4
+								}
+							},
+							{
+								"content": "4. Recommend Score (0-10)",
+								"source": "D(1,216,1263,498,1262,498,1286,216,1287)",
+								"span": {
+									"offset": 1092,
+									"length": 25
+								}
+							},
+							{
+								"content": "How likely are you to recommend this session? (10 is highest)",
+								"source": "D(1,216,1293,727,1289,727,1313,216,1317)",
+								"span": {
+									"offset": 1119,
+									"length": 61
+								}
+							},
+							{
+								"content": "0",
+								"source": "D(1,216,1344,230,1344,230,1365,216,1365)",
+								"span": {
+									"offset": 1181,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,237,1346,254,1346,254,1363,237,1363)",
+								"span": {
+									"offset": 1183,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,372,1344,388,1344,388,1362,372,1362)",
+								"span": {
+									"offset": 1185,
+									"length": 1
+								}
+							},
+							{
+								"content": "1",
+								"source": "D(1,285,1344,298,1344,298,1364,285,1364)",
+								"span": {
+									"offset": 1187,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,304,1345,321,1345,321,1362,304,1362)",
+								"span": {
+									"offset": 1189,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,439,1344,456,1344,455,1361,439,1361)",
+								"span": {
+									"offset": 1191,
+									"length": 1
+								}
+							},
+							{
+								"content": "3",
+								"source": "D(1,418,1342,433,1342,433,1363,418,1363)",
+								"span": {
+									"offset": 1193,
+									"length": 1
+								}
+							},
+							{
+								"content": "4",
+								"source": "D(1,483,1341,499,1341,499,1361,483,1361)",
+								"span": {
+									"offset": 1195,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,572,1342,589,1342,589,1360,572,1360)",
+								"span": {
+									"offset": 1197,
+									"length": 1
+								}
+							},
+							{
+								"content": "6",
+								"source": "D(1,618,1340,633,1340,633,1361,618,1360)",
+								"span": {
+									"offset": 1199,
+									"length": 1
+								}
+							},
+							{
+								"content": "2",
+								"source": "D(1,351,1343,366,1343,366,1364,350,1364)",
+								"span": {
+									"offset": 1201,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,506,1343,523,1343,523,1360,506,1360)",
+								"span": {
+									"offset": 1203,
+									"length": 1
+								}
+							},
+							{
+								"content": "5",
+								"source": "D(1,552,1340,566,1340,566,1361,552,1361)",
+								"span": {
+									"offset": 1205,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,640,1341,655,1341,655,1358,640,1358)",
+								"span": {
+									"offset": 1207,
+									"length": 1
+								}
+							},
+							{
+								"content": "7",
+								"source": "D(1,685,1339,699,1339,699,1359,685,1359)",
+								"span": {
+									"offset": 1209,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,706,1341,722,1341,722,1358,706,1358)",
+								"span": {
+									"offset": 1212,
+									"length": 1
+								}
+							},
+							{
+								"content": "8",
+								"source": "D(1,751,1338,765,1338,765,1359,751,1359)",
+								"span": {
+									"offset": 1214,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,772,1340,788,1340,788,1357,772,1357)",
+								"span": {
+									"offset": 1217,
+									"length": 1
+								}
+							},
+							{
+								"content": "9",
+								"source": "D(1,817,1337,831,1337,831,1358,817,1358)",
+								"span": {
+									"offset": 1220,
+									"length": 1
+								}
+							},
+							{
+								"content": "☐",
+								"source": "D(1,838,1339,854,1339,855,1356,838,1356)",
+								"span": {
+									"offset": 1223,
+									"length": 1
+								}
+							},
+							{
+								"content": "☒",
+								"source": "D(1,916,1338,933,1338,933,1356,916,1355)",
+								"span": {
+									"offset": 1225,
+									"length": 1
+								}
+							},
+							{
+								"content": "10",
+								"source": "D(1,884,1336,910,1335,910,1357,884,1358)",
+								"span": {
+									"offset": 1228,
+									"length": 2
+								}
+							},
+							{
+								"content": "5. Open Feedback",
+								"source": "D(1,215,1395,398,1393,399,1417,215,1419)",
+								"span": {
+									"offset": 1236,
+									"length": 16
+								}
+							},
+							{
+								"content": "Best part:",
+								"source": "D(1,214,1427,296,1427,296,1447,214,1448)",
+								"span": {
+									"offset": 1254,
+									"length": 10
+								}
+							},
+							{
+								"content": "DEMO",
+								"source": "D(1,390,1414,498,1407,499,1439,392,1447)",
+								"span": {
+									"offset": 1265,
+									"length": 4
+								}
+							},
+							{
+								"content": "Improve:",
+								"source": "D(1,214,1472,288,1472,289,1491,215,1492)",
+								"span": {
+									"offset": 1271,
+									"length": 8
+								}
+							},
+							{
+								"content": "NONE",
+								"source": "D(1,439,1454,529,1450,530,1482,441,1486)",
+								"span": {
+									"offset": 1281,
+									"length": 4
+								}
+							},
+							{
+								"content": "Future topics:",
+								"source": "D(1,213,1515,329,1515,329,1536,213,1536)",
+								"span": {
+									"offset": 1287,
+									"length": 14
+								}
+							},
+							{
+								"content": "AUGMENTED INTELLIGENCE",
+								"source": "D(1,504,1496,979,1488,980,1523,505,1530)",
+								"span": {
+									"offset": 1303,
+									"length": 22
+								}
+							},
+							{
+								"content": "Thank you! Please capture this survey image and submit to the web portal.",
+								"source": "D(1,212,1559,836,1550,836,1576,212,1584)",
+								"span": {
+									"offset": 1327,
+									"length": 73
+								}
+							}
+						]
+					}
+				],
+				"paragraphs": [
+					{
+						"role": "sectionHeading",
+						"content": "Al Content Understanding - Presentation Feedback Survey",
+						"source": "D(1,222,465,831,468,831,493,221,491)",
+						"span": {
+							"offset": 0,
+							"length": 57
+						}
+					},
+					{
+						"content": "Thank you for attending! Please complete this quick survey and capture a photo to upload to the feedback portal.",
+						"source": "D(1,221,496,985,499,985,544,221,541)",
+						"span": {
+							"offset": 59,
+							"length": 112
+						}
+					},
+					{
+						"role": "sectionHeading",
+						"content": "1. About You",
+						"source": "D(1,222,567,350,567,350,588,222,587)",
+						"span": {
+							"offset": 174,
+							"length": 15
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,223,601,237,601,237,615,223,615)",
+						"span": {
+							"offset": 191,
+							"length": 1
+						}
+					},
+					{
+						"content": "Student",
+						"source": "D(1,242,598,308,598,308,617,242,617)",
+						"span": {
+							"offset": 194,
+							"length": 7
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,316,601,330,601,330,615,316,615)",
+						"span": {
+							"offset": 203,
+							"length": 1
+						}
+					},
+					{
+						"content": "Developer",
+						"source": "D(1,336,599,421,599,421,619,336,618)",
+						"span": {
+							"offset": 206,
+							"length": 9
+						}
+					},
+					{
+						"content": "☒",
+						"source": "D(1,430,602,444,602,444,617,430,617)",
+						"span": {
+							"offset": 217,
+							"length": 1
+						}
+					},
+					{
+						"content": "Manager",
+						"source": "D(1,448,600,523,601,523,619,448,619)",
+						"span": {
+							"offset": 220,
+							"length": 7
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,532,602,546,602,546,616,532,616)",
+						"span": {
+							"offset": 229,
+							"length": 1
+						}
+					},
+					{
+						"content": "Researcher",
+						"source": "D(1,551,600,647,600,647,618,551,618)",
+						"span": {
+							"offset": 232,
+							"length": 10
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,656,602,669,602,669,616,656,616)",
+						"span": {
+							"offset": 244,
+							"length": 1
+						}
+					},
+					{
+						"content": "Hobbyist",
+						"source": "D(1,674,600,747,600,747,619,674,619)",
+						"span": {
+							"offset": 247,
+							"length": 8
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,755,602,769,602,769,616,755,616)",
+						"span": {
+							"offset": 257,
+							"length": 1
+						}
+					},
+					{
+						"content": "Other:",
+						"source": "D(1,775,600,825,600,825,618,775,618)",
+						"span": {
+							"offset": 260,
+							"length": 6
+						}
+					},
+					{
+						"content": "Years of experience in AI/ML:",
+						"source": "D(1,220,640,461,640,461,661,220,661)",
+						"span": {
+							"offset": 268,
+							"length": 29
+						}
+					},
+					{
+						"content": "Industry: RETAIL",
+						"source": "D(1,524,634,723,628,724,658,525,664)",
+						"span": {
+							"offset": 299,
+							"length": 16
+						}
+					},
+					{
+						"role": "sectionHeading",
+						"content": "2. Al Knowledge",
+						"source": "D(1,220,685,382,686,381,708,220,707)",
+						"span": {
+							"offset": 318,
+							"length": 19
+						}
+					},
+					{
+						"content": "Level: ☐ Beginner ☒ Intermediate ☐ Advanced ☐ Expert",
+						"source": "D(1,219,718,702,718,702,739,219,738)",
+						"span": {
+							"offset": 339,
+							"length": 52
+						}
+					},
+					{
+						"content": "Used Azure Al before? ☐ Yes ☐ No",
+						"source": "D(1,220,762,523,763,523,784,220,782)",
+						"span": {
+							"offset": 393,
+							"length": 32
+						}
+					},
+					{
+						"content": "☐ Planning to",
+						"source": "D(1,533,763,645,763,645,784,533,784)",
+						"span": {
+							"offset": 427,
+							"length": 13
+						}
+					},
+					{
+						"content": "3. Presentation Feedback (1-5)",
+						"source": "D(1,208,799,932,798,932,834,208,834)",
+						"span": {
+							"offset": 472,
+							"length": 30
+						}
+					},
+					{
+						"content": "Statement",
+						"source": "D(1,208,834,346,834,346,869,208,869)",
+						"span": {
+							"offset": 523,
+							"length": 9
+						}
+					},
+					{
+						"content": "1",
+						"source": "D(1,346,834,435,834,435,869,346,869)",
+						"span": {
+							"offset": 542,
+							"length": 1
+						}
+					},
+					{
+						"content": "2",
+						"source": "D(1,435,834,573,834,573,869,435,869)",
+						"span": {
+							"offset": 553,
+							"length": 1
+						}
+					},
+					{
+						"content": "3",
+						"source": "D(1,573,834,696,834,696,868,573,869)",
+						"span": {
+							"offset": 564,
+							"length": 1
+						}
+					},
+					{
+						"content": "4",
+						"source": "D(1,696,834,822,834,823,868,696,868)",
+						"span": {
+							"offset": 575,
+							"length": 1
+						}
+					},
+					{
+						"content": "5",
+						"source": "D(1,822,834,932,834,933,868,823,868)",
+						"span": {
+							"offset": 586,
+							"length": 1
+						}
+					},
+					{
+						"content": "Topic was engaging.",
+						"source": "D(1,208,869,346,869,346,935,207,935)",
+						"span": {
+							"offset": 608,
+							"length": 19
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,346,869,435,869,435,935,346,935)",
+						"span": {
+							"offset": 637,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,435,869,573,869,573,934,435,935)",
+						"span": {
+							"offset": 648,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,573,869,696,868,697,934,573,934)",
+						"span": {
+							"offset": 659,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,696,868,823,868,824,933,697,934)",
+						"span": {
+							"offset": 670,
+							"length": 1
+						}
+					},
+					{
+						"content": "☒",
+						"source": "D(1,823,868,933,868,934,933,824,933)",
+						"span": {
+							"offset": 681,
+							"length": 1
+						}
+					},
+					{
+						"content": "Concepts were clear.",
+						"source": "D(1,207,935,346,935,346,998,207,999)",
+						"span": {
+							"offset": 703,
+							"length": 20
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,346,935,435,935,435,998,346,998)",
+						"span": {
+							"offset": 733,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,435,935,573,934,573,997,435,998)",
+						"span": {
+							"offset": 744,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,573,934,697,934,698,997,573,997)",
+						"span": {
+							"offset": 755,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,697,934,824,933,825,996,698,997)",
+						"span": {
+							"offset": 766,
+							"length": 1
+						}
+					},
+					{
+						"content": "☒",
+						"source": "D(1,824,933,934,933,935,996,825,996)",
+						"span": {
+							"offset": 777,
+							"length": 1
+						}
+					},
+					{
+						"content": "Demos were useful.",
+						"source": "D(1,207,999,346,998,346,1066,206,1066)",
+						"span": {
+							"offset": 799,
+							"length": 18
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,346,998,435,998,435,1065,346,1066)",
+						"span": {
+							"offset": 827,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,435,998,573,997,574,1064,435,1065)",
+						"span": {
+							"offset": 838,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,573,997,698,997,699,1064,574,1064)",
+						"span": {
+							"offset": 849,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,698,997,825,996,826,1063,699,1064)",
+						"span": {
+							"offset": 860,
+							"length": 1
+						}
+					},
+					{
+						"content": "☒",
+						"source": "D(1,825,996,935,996,937,1063,826,1063)",
+						"span": {
+							"offset": 871,
+							"length": 1
+						}
+					},
+					{
+						"content": "Right skill level.",
+						"source": "D(1,206,1066,346,1066,346,1133,206,1133)",
+						"span": {
+							"offset": 893,
+							"length": 18
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,346,1066,435,1065,435,1133,346,1133)",
+						"span": {
+							"offset": 921,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,435,1065,574,1064,574,1132,435,1133)",
+						"span": {
+							"offset": 932,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,574,1064,699,1064,700,1132,574,1132)",
+						"span": {
+							"offset": 943,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,699,1064,826,1063,827,1131,700,1132)",
+						"span": {
+							"offset": 954,
+							"length": 1
+						}
+					},
+					{
+						"content": "☒",
+						"source": "D(1,826,1063,937,1063,938,1131,827,1131)",
+						"span": {
+							"offset": 965,
+							"length": 1
+						}
+					},
+					{
+						"content": "Learned something",
+						"source": "D(1,206,1133,346,1133,345,1201,206,1201)",
+						"span": {
+							"offset": 987,
+							"length": 17
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,346,1133,435,1133,434,1200,345,1201)",
+						"span": {
+							"offset": 1014,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,435,1133,574,1132,574,1200,434,1200)",
+						"span": {
+							"offset": 1025,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,574,1132,700,1132,700,1200,574,1200)",
+						"span": {
+							"offset": 1036,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,700,1132,827,1131,828,1200,700,1200)",
+						"span": {
+							"offset": 1047,
+							"length": 1
+						}
+					},
+					{
+						"content": "☒",
+						"source": "D(1,827,1131,938,1131,939,1198,828,1200)",
+						"span": {
+							"offset": 1058,
+							"length": 1
+						}
+					},
+					{
+						"content": "new.",
+						"source": "D(1,227,1201,266,1201,266,1218,227,1218)",
+						"span": {
+							"offset": 1082,
+							"length": 4
+						}
+					},
+					{
+						"role": "sectionHeading",
+						"content": "4. Recommend Score (0-10)",
+						"source": "D(1,216,1263,498,1262,498,1286,216,1287)",
+						"span": {
+							"offset": 1089,
+							"length": 28
+						}
+					},
+					{
+						"content": "How likely are you to recommend this session? (10 is highest) 0 ☐ ☐ 1 ☐ ☐ 3 4 ☐ 6 2 ☐ 5 ☐ 7",
+						"source": "D(1,216,1293,727,1289,728,1361,216,1365)",
+						"span": {
+							"offset": 1119,
+							"length": 91
+						}
+					},
+					{
+						"content": "☐ 8",
+						"source": "D(1,706,1338,765,1338,765,1359,705,1359)",
+						"span": {
+							"offset": 1212,
+							"length": 3
+						}
+					},
+					{
+						"content": "☐",
+						"source": "D(1,772,1340,789,1340,788,1357,772,1357)",
+						"span": {
+							"offset": 1217,
+							"length": 1
+						}
+					},
+					{
+						"content": "9",
+						"source": "D(1,817,1337,831,1337,831,1358,817,1358)",
+						"span": {
+							"offset": 1220,
+							"length": 1
+						}
+					},
+					{
+						"content": "☐ ☒",
+						"source": "D(1,838,1339,933,1338,933,1356,838,1356)",
+						"span": {
+							"offset": 1223,
+							"length": 3
+						}
+					},
+					{
+						"content": "10",
+						"source": "D(1,884,1336,910,1335,910,1357,884,1358)",
+						"span": {
+							"offset": 1228,
+							"length": 2
+						}
+					},
+					{
+						"role": "sectionHeading",
+						"content": "5. Open Feedback",
+						"source": "D(1,215,1395,398,1393,399,1417,215,1419)",
+						"span": {
+							"offset": 1233,
+							"length": 19
+						}
+					},
+					{
+						"content": "Best part: DEMO",
+						"source": "D(1,213,1427,498,1407,500,1439,215,1460)",
+						"span": {
+							"offset": 1254,
+							"length": 15
+						}
+					},
+					{
+						"content": "Improve:",
+						"source": "D(1,214,1472,288,1472,289,1491,215,1492)",
+						"span": {
+							"offset": 1271,
+							"length": 8
+						}
+					},
+					{
+						"content": "NONE",
+						"source": "D(1,439,1454,529,1450,530,1482,441,1486)",
+						"span": {
+							"offset": 1281,
+							"length": 4
+						}
+					},
+					{
+						"content": "Future topics:",
+						"source": "D(1,213,1515,329,1515,329,1536,213,1536)",
+						"span": {
+							"offset": 1287,
+							"length": 14
+						}
+					},
+					{
+						"content": "AUGMENTED INTELLIGENCE",
+						"source": "D(1,504,1496,979,1488,980,1523,505,1530)",
+						"span": {
+							"offset": 1303,
+							"length": 22
+						}
+					},
+					{
+						"content": "Thank you! Please capture this survey image and submit to the web portal.",
+						"source": "D(1,212,1559,836,1550,836,1576,212,1584)",
+						"span": {
+							"offset": 1327,
+							"length": 73
+						}
+					}
+				],
+				"sections": [
+					{
+						"span": {
+							"offset": 0,
+							"length": 1400
+						},
+						"elements": [
+							"/paragraphs/0",
+							"/paragraphs/1",
+							"/sections/1",
+							"/sections/3",
+							"/sections/4"
+						]
+					},
+					{
+						"span": {
+							"offset": 174,
+							"length": 912
+						},
+						"elements": [
+							"/paragraphs/2",
+							"/paragraphs/3",
+							"/paragraphs/4",
+							"/paragraphs/5",
+							"/paragraphs/6",
+							"/paragraphs/7",
+							"/paragraphs/8",
+							"/paragraphs/9",
+							"/paragraphs/10",
+							"/paragraphs/11",
+							"/paragraphs/12",
+							"/paragraphs/13",
+							"/paragraphs/14",
+							"/paragraphs/15",
+							"/paragraphs/16",
+							"/sections/2"
+						]
+					},
+					{
+						"span": {
+							"offset": 318,
+							"length": 768
+						},
+						"elements": [
+							"/paragraphs/17",
+							"/paragraphs/18",
+							"/paragraphs/19",
+							"/paragraphs/20",
+							"/tables/0",
+							"/paragraphs/58"
+						]
+					},
+					{
+						"span": {
+							"offset": 1089,
+							"length": 141
+						},
+						"elements": [
+							"/paragraphs/59",
+							"/paragraphs/60",
+							"/paragraphs/61",
+							"/paragraphs/62",
+							"/paragraphs/63",
+							"/paragraphs/64",
+							"/paragraphs/65"
+						]
+					},
+					{
+						"span": {
+							"offset": 1233,
+							"length": 167
+						},
+						"elements": [
+							"/paragraphs/66",
+							"/paragraphs/67",
+							"/paragraphs/68",
+							"/paragraphs/69",
+							"/paragraphs/70",
+							"/paragraphs/71",
+							"/paragraphs/72"
+						]
+					}
+				],
+				"tables": [
+					{
+						"rowCount": 7,
+						"columnCount": 6,
+						"cells": [
+							{
+								"kind": "content",
+								"rowIndex": 0,
+								"columnIndex": 0,
+								"rowSpan": 1,
+								"columnSpan": 6,
+								"content": "3. Presentation Feedback (1-5)",
+								"source": "D(1,208,799,932,798,932,834,208,834)",
+								"span": {
+									"offset": 472,
+									"length": 30
+								},
+								"elements": [
+									"/paragraphs/21"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 1,
+								"columnIndex": 0,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "Statement",
+								"source": "D(1,208,834,346,834,346,869,208,869)",
+								"span": {
+									"offset": 523,
+									"length": 9
+								},
+								"elements": [
+									"/paragraphs/22"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 1,
+								"columnIndex": 1,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "1",
+								"source": "D(1,346,834,435,834,435,869,346,869)",
+								"span": {
+									"offset": 542,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/23"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 1,
+								"columnIndex": 2,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "2",
+								"source": "D(1,435,834,573,834,573,869,435,869)",
+								"span": {
+									"offset": 553,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/24"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 1,
+								"columnIndex": 3,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "3",
+								"source": "D(1,573,834,696,834,696,868,573,869)",
+								"span": {
+									"offset": 564,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/25"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 1,
+								"columnIndex": 4,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "4",
+								"source": "D(1,696,834,822,834,823,868,696,868)",
+								"span": {
+									"offset": 575,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/26"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 1,
+								"columnIndex": 5,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "5",
+								"source": "D(1,822,834,932,834,933,868,823,868)",
+								"span": {
+									"offset": 586,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/27"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 2,
+								"columnIndex": 0,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "Topic was engaging.",
+								"source": "D(1,208,869,346,869,346,935,207,935)",
+								"span": {
+									"offset": 608,
+									"length": 19
+								},
+								"elements": [
+									"/paragraphs/28"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 2,
+								"columnIndex": 1,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,346,869,435,869,435,935,346,935)",
+								"span": {
+									"offset": 637,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/29"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 2,
+								"columnIndex": 2,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,435,869,573,869,573,934,435,935)",
+								"span": {
+									"offset": 648,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/30"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 2,
+								"columnIndex": 3,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,573,869,696,868,697,934,573,934)",
+								"span": {
+									"offset": 659,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/31"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 2,
+								"columnIndex": 4,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,696,868,823,868,824,933,697,934)",
+								"span": {
+									"offset": 670,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/32"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 2,
+								"columnIndex": 5,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☒",
+								"source": "D(1,823,868,933,868,934,933,824,933)",
+								"span": {
+									"offset": 681,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/33"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 3,
+								"columnIndex": 0,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "Concepts were clear.",
+								"source": "D(1,207,935,346,935,346,998,207,999)",
+								"span": {
+									"offset": 703,
+									"length": 20
+								},
+								"elements": [
+									"/paragraphs/34"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 3,
+								"columnIndex": 1,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,346,935,435,935,435,998,346,998)",
+								"span": {
+									"offset": 733,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/35"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 3,
+								"columnIndex": 2,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,435,935,573,934,573,997,435,998)",
+								"span": {
+									"offset": 744,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/36"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 3,
+								"columnIndex": 3,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,573,934,697,934,698,997,573,997)",
+								"span": {
+									"offset": 755,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/37"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 3,
+								"columnIndex": 4,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,697,934,824,933,825,996,698,997)",
+								"span": {
+									"offset": 766,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/38"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 3,
+								"columnIndex": 5,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☒",
+								"source": "D(1,824,933,934,933,935,996,825,996)",
+								"span": {
+									"offset": 777,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/39"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 4,
+								"columnIndex": 0,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "Demos were useful.",
+								"source": "D(1,207,999,346,998,346,1066,206,1066)",
+								"span": {
+									"offset": 799,
+									"length": 18
+								},
+								"elements": [
+									"/paragraphs/40"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 4,
+								"columnIndex": 1,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,346,998,435,998,435,1065,346,1066)",
+								"span": {
+									"offset": 827,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/41"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 4,
+								"columnIndex": 2,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,435,998,573,997,574,1064,435,1065)",
+								"span": {
+									"offset": 838,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/42"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 4,
+								"columnIndex": 3,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,573,997,698,997,699,1064,574,1064)",
+								"span": {
+									"offset": 849,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/43"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 4,
+								"columnIndex": 4,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,698,997,825,996,826,1063,699,1064)",
+								"span": {
+									"offset": 860,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/44"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 4,
+								"columnIndex": 5,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☒",
+								"source": "D(1,825,996,935,996,937,1063,826,1063)",
+								"span": {
+									"offset": 871,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/45"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 5,
+								"columnIndex": 0,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "Right skill level.",
+								"source": "D(1,206,1066,346,1066,346,1133,206,1133)",
+								"span": {
+									"offset": 893,
+									"length": 18
+								},
+								"elements": [
+									"/paragraphs/46"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 5,
+								"columnIndex": 1,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,346,1066,435,1065,435,1133,346,1133)",
+								"span": {
+									"offset": 921,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/47"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 5,
+								"columnIndex": 2,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,435,1065,574,1064,574,1132,435,1133)",
+								"span": {
+									"offset": 932,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/48"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 5,
+								"columnIndex": 3,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,574,1064,699,1064,700,1132,574,1132)",
+								"span": {
+									"offset": 943,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/49"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 5,
+								"columnIndex": 4,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,699,1064,826,1063,827,1131,700,1132)",
+								"span": {
+									"offset": 954,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/50"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 5,
+								"columnIndex": 5,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☒",
+								"source": "D(1,826,1063,937,1063,938,1131,827,1131)",
+								"span": {
+									"offset": 965,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/51"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 6,
+								"columnIndex": 0,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "Learned something",
+								"source": "D(1,206,1133,346,1133,345,1201,206,1201)",
+								"span": {
+									"offset": 987,
+									"length": 17
+								},
+								"elements": [
+									"/paragraphs/52"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 6,
+								"columnIndex": 1,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,346,1133,435,1133,434,1200,345,1201)",
+								"span": {
+									"offset": 1014,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/53"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 6,
+								"columnIndex": 2,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,435,1133,574,1132,574,1200,434,1200)",
+								"span": {
+									"offset": 1025,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/54"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 6,
+								"columnIndex": 3,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,574,1132,700,1132,700,1200,574,1200)",
+								"span": {
+									"offset": 1036,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/55"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 6,
+								"columnIndex": 4,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☐",
+								"source": "D(1,700,1132,827,1131,828,1200,700,1200)",
+								"span": {
+									"offset": 1047,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/56"
+								]
+							},
+							{
+								"kind": "content",
+								"rowIndex": 6,
+								"columnIndex": 5,
+								"rowSpan": 1,
+								"columnSpan": 1,
+								"content": "☒",
+								"source": "D(1,827,1131,938,1131,939,1198,828,1200)",
+								"span": {
+									"offset": 1058,
+									"length": 1
+								},
+								"elements": [
+									"/paragraphs/57"
+								]
+							}
+						],
+						"source": "D(1,215,816,931,805,934,1182,219,1193)",
+						"span": {
+							"offset": 443,
+							"length": 636
+						}
+					}
+				]
+			}
+		]
+	},
+	"usage": {
+		"documentPages": 1,
+		"tokens": {
+			"contextualization": 1000,
+			"input": 3611,
+			"output": 409
+		}
+	}
+}

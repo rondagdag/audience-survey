@@ -49,6 +49,62 @@ export interface SessionSummary {
   generatedInsights?: string[];
 }
 
+// Azure Content Understanding API response types
+export interface AzureContentField {
+  type: 'string' | 'integer';
+  valueString?: string;
+  valueInteger?: number;
+}
+
+export interface AzureContentResult {
+  analyzerId: string;
+  apiVersion: string;
+  createdAt: string;
+  warnings: any[];
+  contents: Array<{
+    markdown: string;
+    fields: {
+      Role?: AzureContentField;
+      YearsOfExperience?: AzureContentField;
+      Industry?: AzureContentField;
+      AIKnowledgeLevel?: AzureContentField;
+      UsedAzureAI?: AzureContentField;
+      TopicEngagement?: AzureContentField;
+      ConceptClarity?: AzureContentField;
+      DemoUsefulness?: AzureContentField;
+      SkillLevelAppropriateness?: AzureContentField;
+      LearningOutcome?: AzureContentField;
+      RecommendScore?: AzureContentField;
+      BestPart?: AzureContentField;
+      ImprovementSuggestions?: AzureContentField;
+      FutureTopics?: AzureContentField;
+    };
+    kind: string;
+    startPageNumber: number;
+    endPageNumber: number;
+    unit: string;
+    pages: any[];
+    paragraphs: any[];
+    sections: any[];
+    tables: any[];
+  }>;
+}
+
+export interface AzureAnalyzeResponse {
+  id: string;
+  status: 'NotStarted' | 'Running' | 'Succeeded' | 'Failed';
+  result?: AzureContentResult;
+  usage?: {
+    documentPages: number;
+    tokens: {
+      contextualization: number;
+      input: number;
+      output: number;
+    };
+  };
+}
+
+// Legacy type for backward compatibility
 export interface AzureAIExtractionResult {
   text?: string[];
   checkboxes?: { label: string; checked: boolean }[];

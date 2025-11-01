@@ -46,6 +46,7 @@ Edit `.env.local` and add your credentials:
 # Azure AI Content Understanding
 AZURE_CONTENT_ENDPOINT=https://your-resource-name.cognitiveservices.azure.com
 AZURE_CONTENT_KEY=your-api-key-here
+AZURE_ANALYZER_ID=audience-survey
 
 # Admin Secret (use a strong random string)
 ADMIN_SECRET=your-secure-admin-secret-here
@@ -57,6 +58,8 @@ ADMIN_SECRET=your-secure-admin-secret-here
 2. Create a new "AI Content Understanding" resource
 3. Navigate to "Keys and Endpoint" section
 4. Copy the endpoint URL and one of the keys
+5. Create a custom analyzer in Azure AI Studio with the survey field schema
+6. Copy the analyzer ID (default: `audience-survey`)
 
 ### 3. Run Development Server
 
@@ -159,6 +162,7 @@ vercel
 Add environment variables in Vercel dashboard:
 - `AZURE_CONTENT_ENDPOINT`
 - `AZURE_CONTENT_KEY`
+- `AZURE_ANALYZER_ID`
 - `ADMIN_SECRET`
 
 ### Deploy to Azure Static Web Apps:
@@ -195,8 +199,34 @@ audience-survey/
 │   ├── data-store.ts     # In-memory data storage
 │   ├── azure-content-understanding.ts  # Azure integration
 │   └── survey-mapper.ts  # AI result mapping
+├── tests/                # Playwright E2E tests
 └── public/               # Static assets
 ```
+
+### Testing
+
+Run end-to-end tests with Playwright:
+
+```bash
+# Run all tests (headless)
+npm run test:e2e
+
+# Run tests in UI mode (recommended for development)
+npm run test:ui
+
+# Run tests in headed mode (watch browser)
+npm run test:headed
+
+# View HTML test report
+npm run test:report
+```
+
+Test suites:
+- **admin.spec.ts**: Admin authentication, session management
+- **audience.spec.ts**: Upload flow, mobile responsiveness
+- **api.spec.ts**: API endpoints, validation, error handling
+
+Tests automatically start the dev server if not running.
 
 ### Adding Features
 
