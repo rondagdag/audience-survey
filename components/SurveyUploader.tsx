@@ -177,9 +177,15 @@ export default function SurveyUploader() {
       {error && (
         <div className="max-w-md mx-auto bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
           <p className="font-medium">⚠️ {error}</p>
-          <p className="text-sm mt-1">
-            Try taking the photo in better lighting or with a clearer angle.
-          </p>
+          {error.includes('session') ? (
+            <p className="text-sm mt-1">
+              Please refresh the page or contact the speaker to ensure a session is active.
+            </p>
+          ) : (
+            <p className="text-sm mt-1">
+              Try taking the photo in better lighting or with a clearer angle.
+            </p>
+          )}
         </div>
       )}
     </div>

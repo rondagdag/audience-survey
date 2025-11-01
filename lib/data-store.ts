@@ -176,50 +176,91 @@ class DataStore {
     feedbackList: string[]
   ): Array<{ text: string; value: number }> {
     const wordCounts: Record<string, number> = {};
+    const phraseCounts: Record<string, number> = {};
+    
+    // Expanded stop words list for better keyword extraction
     const stopWords = new Set([
-      'the',
-      'a',
-      'an',
-      'and',
-      'or',
-      'but',
-      'in',
-      'on',
-      'at',
-      'to',
-      'for',
-      'of',
-      'with',
-      'by',
-      'from',
-      'was',
-      'were',
-      'is',
-      'are',
-      'it',
-      'this',
-      'that',
-      'very',
-      'really',
+      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+      'of', 'with', 'by', 'from', 'was', 'were', 'is', 'are', 'it', 'this',
+      'that', 'very', 'really', 'just', 'about', 'can', 'could', 'should',
+      'would', 'been', 'have', 'has', 'had', 'be', 'some', 'more', 'much',
+      'many', 'most', 'like', 'also', 'well', 'good', 'great', 'nice',
+      'there', 'these', 'those', 'they', 'them', 'their', 'what', 'which',
+      'who', 'when', 'where', 'how', 'why', 'all', 'each', 'every', 'both',
+      'few', 'any', 'such', 'than', 'too', 'so', 'as', 'if', 'into',
+      'through', 'during', 'before', 'after', 'above', 'below', 'between',
+      'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when',
+      'where', 'why', 'how', 'all', 'both', 'each', 'few', 'more', 'most',
+      'other', 'some', 'such', 'only', 'own', 'same', 'than', 'too', 'very',
+      'will', 'not', 'out', 'up', 'down', 'need', 'get', 'make', 'know',
+      'think', 'see', 'come', 'take', 'find', 'give', 'tell', 'work', 'call',
+      'try', 'ask', 'feel', 'become', 'leave', 'put', 'mean', 'keep', 'let',
     ]);
 
     feedbackList.forEach((feedback) => {
+      // Extract single words
       const words = feedback
         .toLowerCase()
-        .replace(/[^\w\s]/g, '')
-        .split(/\s+/);
+        .replace(/[^\w\s-]/g, ' ')
+        .split(/\s+/)
+        .filter(word => word.length > 0);
 
+      // Count meaningful single words
       words.forEach((word) => {
-        if (word.length > 3 && !stopWords.has(word)) {
+        if (word.length > 3 && !stopWords.has(word) && !/^\d+$/.test(word)) {
           wordCounts[word] = (wordCounts[word] || 0) + 1;
         }
       });
+
+      // Extract 2-word phrases (bigrams)
+      for (let i = 0; i < words.length - 1; i++) {
+        const word1 = words[i];
+        const word2 = words[i + 1];
+        
+        // Only count phrases where both words are meaningful
+        if (
+          word1.length > 3 &&
+          word2.length > 3 &&
+          !stopWords.has(word1) &&
+          !stopWords.has(word2) &&
+          !/^\d+$/.test(word1) &&
+          !/^\d+$/.test(word2)
+        ) {
+          const phrase = `${word1} ${word2}`;
+          phraseCounts[phrase] = (phraseCounts[phrase] || 0) + 1;
+        }
+      }
     });
 
-    return Object.entries(wordCounts)
+    // Combine single words and phrases, prioritizing phrases
+    const keywords: Array<{ text: string; value: number }> = [];
+    
+    // Add high-frequency phrases (appearing at least 2 times)
+    Object.entries(phraseCounts)
+      .filter(([_, count]) => count >= 2)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 50)
-      .map(([text, value]) => ({ text, value }));
+      .slice(0, 15)
+      .forEach(([text, value]) => {
+        keywords.push({ text, value: value * 1.5 }); // Boost phrase importance
+      });
+
+    // Add top single words, excluding those already in phrases
+    const phrasesSet = new Set(
+      keywords.flatMap(k => k.text.split(' '))
+    );
+    
+    Object.entries(wordCounts)
+      .filter(([word]) => !phrasesSet.has(word))
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 35)
+      .forEach(([text, value]) => {
+        keywords.push({ text, value });
+      });
+
+    // Sort by value and return top 50
+    return keywords
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 50);
   }
 
   // Export to CSV

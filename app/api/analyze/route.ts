@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'No active session. Please wait for the speaker to start a session.',
+          error: 'No active session available. The session may have ended or not started yet. Please refresh the page or contact the speaker.',
         },
         { status: 400 }
       );

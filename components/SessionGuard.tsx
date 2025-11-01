@@ -23,8 +23,11 @@ export default function SessionGuard({
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               No Active Session
             </h2>
-            <p className="text-gray-600">
-              Please wait for the speaker to start a feedback session.
+            <p className="text-gray-600 mb-4">
+              The speaker hasn't started a feedback session yet.
+            </p>
+            <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
+              💡 <strong>Tip:</strong> This page will automatically update when a session becomes available. Keep this page open and wait for the speaker to begin.
             </p>
           </div>
         </div>

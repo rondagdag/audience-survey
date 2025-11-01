@@ -33,13 +33,44 @@ export default function AdminPage() {
     }
   }, [activeSession]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminSecret) {
-      setIsAuthenticated(true);
-      setError('');
-    } else {
+    if (!adminSecret) {
       setError('Please enter admin secret');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Test admin secret by attempting to fetch sessions
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: '__test_auth__', adminSecret }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 401 || data.error === 'Unauthorized') {
+        setError('Invalid admin secret. Please check and try again.');
+      } else if (data.success) {
+        // Auth successful, close the test session
+        await fetch('/api/sessions', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: data.session.id, adminSecret }),
+        });
+        setIsAuthenticated(true);
+        setError('');
+      } else {
+        setError('Unable to verify admin credentials');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,6 +95,9 @@ export default function AdminPage() {
       if (data.success) {
         setSessionName('');
         await fetchSessions();
+      } else if (response.status === 401 || data.error === 'Unauthorized') {
+        setError('Authentication failed. Your admin secret may have expired. Please refresh and login again.');
+        setIsAuthenticated(false);
       } else {
         setError(data.error || 'Failed to create session');
       }
@@ -89,6 +123,9 @@ export default function AdminPage() {
 
       if (data.success) {
         await fetchSessions();
+      } else if (response.status === 401 || data.error === 'Unauthorized') {
+        setError('Authentication failed. Your admin secret may have expired. Please refresh and login again.');
+        setIsAuthenticated(false);
       } else {
         setError(data.error || 'Failed to close session');
       }
@@ -154,9 +191,10 @@ export default function AdminPage() {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login
+              {loading ? 'Verifying...' : 'Login'}
             </button>
           </form>
         </div>
@@ -253,7 +291,7 @@ export default function AdminPage() {
                   value={sessionName}
                   onChange={(e) => setSessionName(e.target.value)}
                   placeholder="Session name (e.g., Azure AI Workshop - Morning)"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                 />
                 <button
                   onClick={createSession}
