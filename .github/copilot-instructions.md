@@ -2,177 +2,158 @@
 
 ## Architecture Overview
 
-This is a Next.js 15 App Router application for collecting audience feedback via photo uploads. The core flow: **Attendee uploads survey photo → Azure AI extracts data → Live dashboard aggregates results**.
+Next.js 15 App Router application for real-time audience feedback collection via photo uploads. **Core flow**: Attendee uploads survey photo → Azure AI Content Understanding extracts structured data → Live dashboard aggregates results.
 
-### Critical Data Flow Pattern
-1. **Client upload** (`components/SurveyUploader.tsx`) → `/api/analyze`
-2. **API route** converts image to Buffer → calls `AzureContentUnderstandingService`
-3. **Azure response** → `SurveyMapper.mapToSurveyResult()` → structured `SurveyResult`
-4. **DataStore** (in-memory singleton) → aggregation → `/api/summary` → dashboard
+### Critical Data Flow
+1. **Client** (`SurveyUploader`) → POST `/api/analyze` with FormData
+2. **API route** converts File to Buffer → `AzureContentUnderstandingService.analyzeImage()`
+3. **Azure REST API** (2-step): POST to start analysis → poll `operation-location` until status='succeeded'
+4. **Azure response** → `SurveyMapper.mapToSurveyResult()` → structured `SurveyResult`
+5. **DataStore singleton** persists → aggregation in `getSessionSummary()` → `/api/summary` → dashboard
 
-### State Architecture
-- **Zustand stores** (`lib/store.ts`): Client-side state for sessions and uploads
-- **DataStore singleton** (`lib/data-store.ts`): Server-side in-memory persistence
-- **Pattern**: Stores poll APIs every 3-5 seconds for "live" updates (no WebSockets)
+### State Management Architecture
+- **Client**: Zustand stores (`lib/store.ts`) - `useSessionStore()` for sessions, `useUploadStore()` for upload state
+- **Server**: `DataStore` singleton (`lib/data-store.ts`) - in-memory Maps (sessions, surveyResults)
+- **Sync pattern**: Client polls APIs every 3-5 seconds (no WebSockets) - intervals cleared in useEffect cleanup
 
-## Key Conventions
+## Critical Constraints
 
-### Session Management (Critical Constraint)
-- **Only ONE active session at a time** - enforced in `DataStore.createSession()`
-- Creating new session auto-closes previous via `session.isActive = false`
-- All uploads require `activeSession` check (see `SessionGuard` component)
+### Session Management (Singleton Pattern)
+- **ONE active session at a time** - `DataStore.createSession()` auto-closes previous sessions
+- All upload operations MUST check `dataStore.getActiveSession()` first - returns 400 if null
+- `SessionGuard` component blocks UI when no active session (shows "⏳ No Active Session")
 
-### Environment Variables (Required for Testing)
+### Admin Authentication
+- **Login flow**: Admin enters secret → creates test session to verify credentials → closes test session
+- All admin API routes check `adminSecret === process.env.ADMIN_SECRET` (401 if invalid)
+- Client logs out automatically on 401 responses from session operations
+
+### Environment Variables
 ```env
-ADMIN_SECRET=demo-secret-123          # Required for /admin access
-AZURE_CONTENT_ENDPOINT=https://...    # Optional - app works without Azure (returns mock data)
-AZURE_CONTENT_KEY=your-key-here       # Optional
+ADMIN_SECRET=demo-secret-123                        # REQUIRED - protects /admin routes
+AZURE_CONTENT_ENDPOINT=https://...azure.com/        # Optional - app degrades gracefully
+AZURE_CONTENT_KEY=your-key                          # Optional
+AZURE_ANALYZER_ID=audience-survey                   # Custom analyzer name
 ```
-**Dev workflow**: Server restart required after `.env.local` changes
+⚠️ **Dev workflow**: Must restart server after `.env.local` changes
 
-### Type System Patterns
-- All survey data types in `lib/types.ts` - single source of truth
-- `SurveyResult` has optional fields (`attendeeType?`, `aiLevel?`) for partial extractions
-- `uncertain?: boolean` flag when Azure confidence < 0.7
+## Development Patterns
 
-## Common Development Tasks
+### Adding Survey Fields (4-step process)
+1. **Types** (`lib/types.ts`): Add field to `PresentationFeedback` or `SurveyResult`
+2. **Mapper** (`lib/survey-mapper.ts`): Extract from Azure `fields` object in `mapToSurveyResult()`
+3. **Aggregation** (`lib/data-store.ts`): Update `getSessionSummary()` to calculate averages/counts
+4. **Visualization** (`components/`): Create component (examples: `FeedbackChart`, `NpsStrip`, `WordCloud`)
 
-### Adding New Survey Fields
-1. Update types in `lib/types.ts` (e.g., add field to `PresentationFeedback`)
-2. Extend `SurveyMapper.mapToSurveyResult()` with extraction logic
-3. Update `DataStore.getSessionSummary()` for aggregation
-4. Add visualization component in `components/`
-
-### API Route Pattern (All follow this)
+### API Route Standard Pattern
 ```typescript
-// All API routes use this structure:
 export async function POST(request: NextRequest) {
   try {
     const activeSession = dataStore.getActiveSession();
-    if (!activeSession) return NextResponse.json({ error: '...' }, { status: 400 });
+    if (!activeSession) {
+      return NextResponse.json({ success: false, error: '...' }, { status: 400 });
+    }
+    
+    // Admin routes: verify adminSecret
+    const { adminSecret } = await request.json();
+    if (adminSecret !== process.env.ADMIN_SECRET) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
     
     // Business logic...
-    
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    return NextResponse.json({ error: '...' }, { status: 500 });
+    console.error('Error:', error);
+    return NextResponse.json({ success: false, error: '...' }, { status: 500 });
   }
 }
 ```
 
-### Testing Without Azure
-- App gracefully handles missing Azure credentials
-- `AzureContentUnderstandingService` throws "not configured" error
-- Caught in `/api/analyze` → returns user-friendly message
-- For testing: Mock data can be added to `SurveyMapper` directly
+### Keyword Extraction Algorithm (Recent Update)
+`DataStore.extractTopWords()` now extracts **meaningful keywords + phrases**:
+- **Bigrams**: Captures 2-word phrases ("azure ai", "machine learning") with 1.5x weight boost
+- **Stop words**: Expanded to 100+ words (includes "very", "really", "just", "about", etc.)
+- **Filtering**: Removes numbers, <4 char words, words already in bigrams
+- **Output**: Up to 15 high-frequency phrases + 35 unique keywords (top 50 total)
 
-## Build & Deploy
+### Component Conventions
+- **'use client'** directive on ALL interactive components (Next.js App Router requirement)
+- **No barrel exports** - always import directly: `import X from '@/components/X'`
+- **Zustand hooks** must be at component top level (React rules)
+- **Polling cleanup**: Always clear intervals in useEffect return function
 
-### Critical Build Commands
+### Azure Integration Specifics
+- **API version**: `2025-05-01-preview` (custom analyzers)
+- **Polling**: Default 2s interval, 120s timeout
+- **Custom analyzer**: Must be created in Azure AI Studio with field schema matching `lib/types.ts`
+- **Error handling**: Throws "not configured" if env vars missing → caught in API route → user-friendly message
+- **Buffer casting**: `imageBuffer as unknown as BodyInit` to satisfy TypeScript (required for Next.js)
+
+## Build & Test Commands
+
+### Development
 ```bash
-npm run build          # Requires Node 18+, validates TypeScript
-npm run dev            # Dev server with hot reload
+npm run dev              # Turbopack enabled for faster builds (Next.js 16)
+npm run build            # Production build (validates TypeScript)
+npm run start            # Start production server
 ```
 
-### Common Build Issues
-- **Buffer type error**: Already fixed with `as unknown as BodyInit` cast in `azure-content-understanding.ts`
-- **Missing types**: Run `npm install --save-dev @types/canvas-confetti` (already included)
-- **Layout not found**: Ensure `app/layout.tsx` exists (must restart dev server after creation)
+### Testing (Playwright)
+```bash
+npm run test:e2e         # Headless CI mode
+npm run test:ui          # Interactive UI (recommended for dev)
+npm run test:headed      # Watch browser execution
+npm run test:report      # View HTML report from last run
+```
 
-## Integration Points
+**Test structure**: 3 suites in `tests/` - `admin.spec.ts` (auth, session CRUD), `audience.spec.ts` (upload flow, mobile), `api.spec.ts` (endpoint validation). Dev server auto-starts via `playwright.config.ts` webServer config.
 
-### Azure AI Content Understanding
-- **REST API**: `POST {endpoint}/contentunderstanding/documents:analyze?api-version=2024-12-01-preview`
-- **Pattern**: Send raw Buffer, parse `analyzeResult.readResults` for OCR
-- **Mapping logic**: Text extraction → keyword matching for survey fields (see `SurveyMapper.extractAttendeeType()`)
+### Common Issues
+- **Port conflict**: Check for existing Next.js instance on port 3000
+- **Azure 401**: Verify `AZURE_CONTENT_KEY` is correct and resource exists
+- **Session not detected**: Client polls every 5s - wait or refresh page
+- **Tailwind not updating**: Restart dev server after config changes
 
-### Admin Authentication Flow
-- **Client-side**: Form collects `adminSecret`, sets `isAuthenticated` state
-- **Server-side**: All admin endpoints check `req.body.adminSecret === process.env.ADMIN_SECRET`
-- **Pattern**: Secret sent with each request (stateless, no sessions)
+## Error Message Patterns
 
-## Codebase-Specific Patterns
+### Context-Aware User Feedback
+- **Session errors**: Show refresh instruction, not image quality tips
+- **Azure errors**: "Couldn't read survey" instead of raw API error
+- **Auth errors**: Automatically log out admin + show "expired" message
 
-### Component Organization
-- **No barrel exports** - import directly from files
-- **'use client' directive** on all interactive components (required for App Router)
-- **Zustand hooks** must be called at component top level (React hooks rules)
-
-### Data Store Singleton Pattern
+Example from `SurveyUploader`:
 ```typescript
-// lib/data-store.ts exports singleton:
+{error.includes('session') ? (
+  <p>Please refresh the page or contact the speaker to ensure a session is active.</p>
+) : (
+  <p>Try taking the photo in better lighting or with a clearer angle.</p>
+)}
+```
+
+## Data Store Patterns
+
+### In-Memory Storage (Production Warning)
+Current `DataStore` uses Maps - **resets on server restart**. For production:
+1. Replace Maps with database client (MongoDB, PostgreSQL, etc.)
+2. Keep same interface: `createSession()`, `getSurveyResults()`, `getSessionSummary()`, etc.
+3. Update only `lib/data-store.ts` - zero changes to API routes
+
+### Singleton Export Pattern
+```typescript
+// lib/data-store.ts
 export const dataStore = new DataStore();
 
-// Used in API routes:
+// All API routes import singleton
 import { dataStore } from '@/lib/data-store';
-const sessions = dataStore.getAllSessions();
+const summary = dataStore.getSessionSummary(sessionId);
 ```
 
-### Real-time Updates (Pseudo-Live)
-- No WebSockets - uses `setInterval` in `useEffect` hooks
-- Admin dashboard: polls `/api/summary` every 5 seconds
-- Session list: polls `/api/sessions` every 3 seconds
-- Clear intervals in cleanup functions
+## Deployment
 
-## Testing
-
-### Playwright E2E Tests
-- **Location**: `tests/` directory (3 test suites)
-- **Configuration**: `playwright.config.ts` - runs on Chromium, Firefox, WebKit, and mobile viewports
-- **Auto-start**: Dev server automatically starts before tests via `webServer` config
-
-### Test Suites
-1. **admin.spec.ts**: Admin authentication, session CRUD, dashboard functionality
-2. **audience.spec.ts**: Upload flow, SessionGuard, mobile responsiveness, file validation
-3. **api.spec.ts**: Direct API testing (sessions, analyze, summary, export endpoints)
-
-### Testing Patterns
-```typescript
-// Create session helper (use in beforeEach):
-const adminPage = await context.newPage();
-await adminPage.goto('/admin');
-await adminPage.getByPlaceholder('Admin Secret').fill('demo-secret-123');
-await adminPage.getByRole('button', { name: /login/i }).click();
-await adminPage.getByPlaceholder(/session name/i).fill('Test Session');
-await adminPage.getByRole('button', { name: /create session/i }).click();
-await adminPage.close();
-
-// Image upload helper:
-const fileInput = page.locator('input[type="file"]');
-await fileInput.setInputFiles({
-  name: 'survey.png',
-  mimeType: 'image/png',
-  buffer: Buffer.from('base64-encoded-1x1-png', 'base64'),
-});
-
-// API testing pattern:
-const response = await request.post('/api/sessions', {
-  data: { name: 'Test', adminSecret: 'demo-secret-123' },
-});
-expect(response.ok()).toBeTruthy();
-const data = await response.json();
-expect(data.success).toBeTruthy();
-```
-
-### Running Tests
-```bash
-npm run test:e2e        # Headless mode (CI/CD)
-npm run test:ui         # Interactive UI mode (development)
-npm run test:headed     # Watch browser execution
-npm run test:report     # View HTML report
-```
-
-### CI/CD Integration
-- **GitHub Actions**: `.github/workflows/playwright.yml` runs tests on push/PR
-- **Environment**: Creates `.env.local` with `ADMIN_SECRET=demo-secret-123` in CI
-- **Artifacts**: Uploads test reports for 30 days retention
-
-## Deployment Notes
-
-- **Vercel**: Auto-detects Next.js, add env vars in dashboard
-- **Azure Static Web Apps**: Use `staticwebapp.config.json` (already configured)
-- **Production TODO**: Replace `DataStore` in-memory maps with database (maintain same interface)
+- **Vercel**: Auto-detects Next.js - add env vars in dashboard
+- **Azure Static Web Apps**: `staticwebapp.config.json` configured - use `swa` CLI
+- **Required env vars**: `ADMIN_SECRET`, `AZURE_CONTENT_ENDPOINT`, `AZURE_CONTENT_KEY`, `AZURE_ANALYZER_ID`
 
 ---
 
-**Quick verification**: Check `dataStore.getActiveSession()` before any upload/analysis operations. This is the #1 pattern throughout the codebase.
+**Critical pattern**: Always verify `dataStore.getActiveSession()` before ANY upload/analysis operation. Single active session is enforced at data layer.
