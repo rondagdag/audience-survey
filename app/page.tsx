@@ -1,65 +1,131 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useSessionStore, useUploadStore } from '@/lib/store';
+import SessionGuard from '@/components/SessionGuard';
+import SurveyUploader from '@/components/SurveyUploader';
 
 export default function Home() {
+  const { activeSession, fetchSessions } = useSessionStore();
+  const { uploadResult } = useUploadStore();
+  const [activeTab, setActiveTab] = useState<'upload' | 'summary'>('upload');
+
+  useEffect(() => {
+    // Fetch sessions on mount
+    fetchSessions();
+
+    // Poll for session updates every 5 seconds
+    const interval = setInterval(fetchSessions, 5000);
+
+    return () => clearInterval(interval);
+  }, [fetchSessions]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="bg-white shadow-md">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                📊 Audience Survey
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Snap your survey → instant insights
+              </p>
+            </div>
+            {activeSession && (
+              <div className="text-right">
+                <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                  Active Session
+                </div>
+                <div className="text-xs text-gray-600 mt-1">
+                  {activeSession.name}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {uploadResult ? (
+          <div className="max-w-md mx-auto">
+            <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+              <div className="text-6xl mb-4">🎉</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Thank You!
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Your feedback has been submitted successfully.
+              </p>
+              <p className="text-sm text-gray-500">
+                The speaker will see your responses in real-time on the summary dashboard.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <SessionGuard>
+            <div className="space-y-6">
+              {/* Tab Navigation */}
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => setActiveTab('upload')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                    activeTab === 'upload'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  📸 Upload Survey
+                </button>
+                <button
+                  onClick={() => setActiveTab('summary')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                    activeTab === 'summary'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  📊 View Results
+                </button>
+              </div>
+
+              {/* Content */}
+              {activeTab === 'upload' ? (
+                <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+                  <div className="mb-6 text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      Submit Your Feedback
+                    </h2>
+                    <p className="text-gray-600">
+                      Take a clear photo of your completed survey form
+                    </p>
+                  </div>
+                  <SurveyUploader />
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 text-center">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Results Dashboard
+                  </h2>
+                  <p className="text-gray-600 mb-4">
+                    The speaker will display the live results at the end of the session.
+                  </p>
+                  <div className="text-4xl">📈</div>
+                </div>
+              )}
+            </div>
+          </SessionGuard>
+        )}
       </main>
+
+      {/* Footer */}
+      <footer className="mt-12 pb-8 text-center text-sm text-gray-600">
+        <p>Powered by Azure AI Content Understanding</p>
+      </footer>
     </div>
   );
 }

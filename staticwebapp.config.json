@@ -1,0 +1,9 @@
+{
+  "build": {
+    "env": {
+      "AZURE_CONTENT_ENDPOINT": "@azure-content-endpoint",
+      "AZURE_CONTENT_KEY": "@azure-content-key",
+      "ADMIN_SECRET": "@admin-secret"
+    }
+  }
+}
