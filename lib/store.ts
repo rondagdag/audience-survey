@@ -43,11 +43,9 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       const data = await response.json();
       set({ sessions: data.sessions || [] });
       
-      // Set active session if there is one
+      // Set or clear active session
       const activeSession = data.sessions?.find((s: Session) => s.isActive);
-      if (activeSession) {
-        set({ activeSession });
-      }
+      set({ activeSession: activeSession || null });
     } catch (error) {
       console.error('Failed to fetch sessions:', error);
     }

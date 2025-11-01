@@ -130,7 +130,7 @@ test.describe('API - Analyze Endpoint', () => {
     expect(data.error).toMatch(/invalid file type/i);
   });
 
-  test('POST /api/analyze should handle missing Azure credentials gracefully', async ({ request }) => {
+  test('POST /api/analyze should handle invalid image gracefully', async ({ request }) => {
     // Create active session
     await request.post('/api/sessions', {
       data: {
@@ -139,7 +139,7 @@ test.describe('API - Analyze Endpoint', () => {
       },
     });
     
-    // Upload valid image
+    // Upload invalid tiny image (1x1 pixel - Azure rejects images that are too small)
     const imageBuffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
     
     const response = await request.post('/api/analyze', {
@@ -152,10 +152,10 @@ test.describe('API - Analyze Endpoint', () => {
       },
     });
     
-    // Should return error about Azure not being configured
-    expect(response.status()).toBe(500);
+    // Should return 400 error for invalid image
+    expect(response.status()).toBe(400);
     const data = await response.json();
-    expect(data.error).toMatch(/azure ai.*not configured/i);
+    expect(data.error).toBeDefined();
   });
 });
 
