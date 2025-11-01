@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Next.js 15 App Router application for real-time audience feedback collection via photo uploads. **Core flow**: Attendee uploads survey photo → Azure AI Content Understanding extracts structured data → Live dashboard aggregates results.
+Next.js 16 App Router application for real-time audience feedback collection via photo uploads. **Core flow**: Attendee uploads survey photo → Azure AI Content Understanding extracts structured data → Live dashboard aggregates results.
 
 ### Critical Data Flow
 1. **Client** (`SurveyUploader`) → POST `/api/analyze` with FormData
@@ -30,12 +30,16 @@ Next.js 15 App Router application for real-time audience feedback collection via
 
 ### Environment Variables
 ```env
-ADMIN_SECRET=demo-secret-123                        # REQUIRED - protects /admin routes
-AZURE_CONTENT_ENDPOINT=https://...azure.com/        # Optional - app degrades gracefully
-AZURE_CONTENT_KEY=your-key                          # Optional
-AZURE_ANALYZER_ID=audience-survey                   # Custom analyzer name
+# Azure AI Content Understanding Configuration
+AZURE_CONTENT_ENDPOINT=https://your-resource-name.cognitiveservices.azure.com/  # REQUIRED
+AZURE_CONTENT_KEY=your-api-key-here                                              # REQUIRED
+AZURE_ANALYZER_ID=audience-survey                                                # REQUIRED - Custom analyzer name
+
+# Admin Secret for Session Management
+ADMIN_SECRET=your-secure-admin-secret-here                                       # REQUIRED - protects /admin routes
 ```
 ⚠️ **Dev workflow**: Must restart server after `.env.local` changes
+⚠️ **Setup**: Copy `.example.env.local` to `.env.local` and fill in your credentials
 
 ## Development Patterns
 
@@ -93,9 +97,11 @@ export async function POST(request: NextRequest) {
 
 ### Development
 ```bash
-npm run dev              # Turbopack enabled for faster builds (Next.js 16)
+npm install              # Install dependencies first
+npm run dev              # Start dev server with Turbopack (Next.js 16)
 npm run build            # Production build (validates TypeScript)
 npm run start            # Start production server
+npm run lint             # Run ESLint for code quality checks
 ```
 
 ### Testing (Playwright)
