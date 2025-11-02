@@ -6,15 +6,41 @@ Next.js 16 App Router application for real-time audience feedback collection via
 
 ### Critical Data Flow
 1. **Client** (`SurveyUploader`) → POST `/api/analyze` with FormData
-2. **API route** converts File to Buffer → `AzureContentUnderstandingService.analyzeImage()`
+2. **API route** converts File to Buffer → **saves to `data/uploads/`** (persistent storage) → `AzureContentUnderstandingService.analyzeImage()`
 3. **Azure REST API** (2-step): POST to start analysis → poll `operation-location` until status='succeeded'
-4. **Azure response** → `SurveyMapper.mapToSurveyResult()` → structured `SurveyResult`
+4. **Azure response** → `SurveyMapper.mapToSurveyResult()` → structured `SurveyResult` (includes `imagePath`)
 5. **DataStore singleton** persists → aggregation in `getSessionSummary()` → `/api/summary` → dashboard
+
+### File Upload & Storage Pattern
+- Uploaded images saved to `data/uploads/<timestamp>-<uuid>.<ext>` before processing
+- `SurveyResult.imagePath` stores absolute file path for later reference
+- CSV export includes `imagePath` as first column for traceability
+- File save errors return 500 with "Failed to save uploaded image"
+- Creates `data/uploads` directory recursively if missing (`fs.mkdir(uploadsDir, { recursive: true })`)
 
 ### State Management Architecture
 - **Client**: Zustand stores (`lib/store.ts`) - `useSessionStore()` for sessions, `useUploadStore()` for upload state
 - **Server**: `DataStore` singleton (`lib/data-store.ts`) - in-memory Maps (sessions, surveyResults)
 - **Sync pattern**: Client polls APIs every 3-5 seconds (no WebSockets) - intervals cleared in useEffect cleanup
+
+### Zustand Store Patterns
+**`useSessionStore()`** - Global session state across admin and audience views:
+- `activeSession` - Currently active session (null if none)
+- `sessions` - Full session list (sorted newest first)
+- `fetchSessions()` - Polls `/api/sessions` to sync with server
+- Used in: Admin dashboard, SessionGuard, audience header
+
+**`useUploadStore()`** - Upload flow state (local to SurveyUploader):
+- `isUploading` - Shows loading spinner during analysis
+- `uploadResult` - Holds SurveyResult after success (triggers confetti)
+- `uploadError` - Stores error message for display
+- `resetUpload()` - Clears all upload state after timeout
+
+**Store usage rules**:
+- Always call hooks at component top level (React rules)
+- Use `fetchSessions()` in useEffect with cleanup: `return () => clearInterval(interval)`
+- Never mutate store state directly - use provided setters
+- Upload store is ephemeral (3s auto-reset), session store persists
 
 ## Critical Constraints
 
@@ -51,6 +77,9 @@ ADMIN_SECRET=your-secure-admin-secret-here                                      
 
 ### API Route Standard Pattern
 ```typescript
+// CRITICAL: Add to routes that need fresh data on every request
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const activeSession = dataStore.getActiveSession();
@@ -73,6 +102,11 @@ export async function POST(request: NextRequest) {
 }
 ```
 
+**Next.js 16 App Router specifics**:
+- Use `export const dynamic = 'force-dynamic'` for routes that need real-time data (`/api/sessions`, `/api/summary`, `/api/export`)
+- Without it, responses may be cached unexpectedly in production
+- Admin secret verification pattern: GET endpoints use query params (`searchParams.get('adminSecret')`), POST/PATCH use request body
+
 ### Keyword Extraction Algorithm (Recent Update)
 `DataStore.extractTopWords()` now extracts **meaningful keywords + phrases**:
 - **Bigrams**: Captures 2-word phrases ("azure ai", "machine learning") with 1.5x weight boost
@@ -86,14 +120,76 @@ export async function POST(request: NextRequest) {
 - **Zustand hooks** must be at component top level (React rules)
 - **Polling cleanup**: Always clear intervals in useEffect return function
 
+### Mobile Camera Optimization (SurveyUploader)
+**Critical patterns for camera capture**:
+```typescript
+// Native camera on mobile devices
+<input 
+  type="file" 
+  accept="image/*" 
+  capture="environment"  // Rear camera preferred
+  className="hidden"     // Trigger via styled button
+/>
+```
+
+**File handling flow**:
+1. User taps camera button → triggers hidden file input
+2. `handleFileSelect()` validates type/size immediately (10MB max)
+3. FileReader creates base64 preview → shows in UI
+4. User confirms → `handleUpload()` converts preview back to blob
+5. FormData upload to `/api/analyze` with original filename hint
+
+**UX patterns**:
+- Large touch target (60px+ height) for mobile
+- Preview before submit (Retake vs Submit buttons)
+- Loading spinner during upload (disable buttons)
+- Confetti on success (`canvas-confetti` library, y: 0.6 origin)
+- Context-aware error messages (session vs image quality)
+- 3-second auto-dismiss for success state
+
+**Mobile-specific considerations**:
+- Images may be large (multi-MB photos) - validate size before upload
+- Network may be slow - show clear loading state
+- Portrait orientation common - test responsive layouts at 375px width
+
 ### Azure Integration Specifics
 - **API version**: `2025-05-01-preview` (custom analyzers)
 - **Polling**: Default 2s interval, 120s timeout
 - **Custom analyzer**: Must be created in Azure AI Studio with field schema matching `lib/types.ts`
 - **Error handling**: Throws "not configured" if env vars missing → caught in API route → user-friendly message
 - **Buffer casting**: `imageBuffer as unknown as BodyInit` to satisfy TypeScript (required for Next.js)
+- **Error narrowing**: Azure errors are `unknown` type; cast to `(azureError as any)?.message` to access properties safely
 
-## Build & Test Commands
+**Test structure**: 3 suites in `tests/` - `admin.spec.ts` (auth, session CRUD), `audience.spec.ts` (upload flow, mobile), `api.spec.ts` (endpoint validation). Dev server auto-starts via `playwright.config.ts` webServer config.
+
+### Playwright Test Patterns (Project-Specific)
+**Test organization**:
+- `admin.spec.ts` - Admin auth flow, session lifecycle, 401 handling, CSV export
+- `audience.spec.ts` - Upload UI, mobile viewport, SessionGuard blocking, confetti animation
+- `api.spec.ts` - Raw endpoint validation, error codes, admin secret checks
+
+**Common patterns in this project**:
+```typescript
+// Admin auth helper (reused across admin tests)
+await page.goto('/admin');
+await page.fill('input[type="password"]', process.env.ADMIN_SECRET!);
+await page.click('button:has-text("Login")');
+
+// Session creation pattern
+await page.fill('input[placeholder*="session"]', 'Test Session');
+await page.click('button:has-text("Create Session")');
+await expect(page.locator('text=Test Session')).toBeVisible();
+
+// Mobile upload test (viewport set in test)
+await page.setViewportSize({ width: 375, height: 667 });
+await page.locator('input[type="file"]').setInputFiles('test-survey.jpg');
+```
+
+**Key assertions**:
+- Active session indicator: `expect(page.locator('text=Active Session')).toBeVisible()`
+- Upload success: `expect(page.locator('text=Thank you')).toBeVisible()`
+- Error states: `expect(page.locator('.bg-red-50')).toContainText('...')`
+- CSV download: Check response headers for `Content-Type: text/csv`
 
 ### Development
 ```bash
@@ -143,6 +239,7 @@ Current `DataStore` uses Maps - **resets on server restart**. For production:
 1. Replace Maps with database client (MongoDB, PostgreSQL, etc.)
 2. Keep same interface: `createSession()`, `getSurveyResults()`, `getSessionSummary()`, etc.
 3. Update only `lib/data-store.ts` - zero changes to API routes
+4. **Image files** (`data/uploads`) persist to disk but references in DataStore are in-memory only
 
 ### Singleton Export Pattern
 ```typescript
@@ -153,6 +250,12 @@ export const dataStore = new DataStore();
 import { dataStore } from '@/lib/data-store';
 const summary = dataStore.getSessionSummary(sessionId);
 ```
+
+### CSV Export Pattern
+- First column is `imagePath` for tracing uploaded images
+- Strings escaped with double quotes: `"${String(cell).replace(/"/g, '""')}"`
+- Returns plain CSV with Content-Type header for browser download
+- Filename format: `session-<sessionId>-<timestamp>.csv`
 
 ## Deployment
 

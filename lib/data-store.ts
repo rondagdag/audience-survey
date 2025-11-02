@@ -267,6 +267,7 @@ class DataStore {
   exportToCSV(sessionId: string): string {
     const results = this.getSurveyResults(sessionId);
     const headers = [
+      'Image Path',
       'ID',
       'Submitted At',
       'Attendee Type',
@@ -285,6 +286,7 @@ class DataStore {
     ];
 
     const rows = results.map((r) => [
+      r.imagePath || '',
       r.id,
       r.submittedAt,
       r.attendeeType || '',

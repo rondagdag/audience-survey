@@ -12,7 +12,8 @@ import {
 export class SurveyMapper {
   mapToSurveyResult(
     azureResult: AzureContentResult,
-    sessionId: string
+    sessionId: string,
+    imagePath?: string
   ): SurveyResult {
     // Extract fields from first content item
     const fields = azureResult.contents[0]?.fields || {};
@@ -20,6 +21,7 @@ export class SurveyMapper {
     const result: SurveyResult = {
       id: crypto.randomUUID(),
       sessionId,
+      imagePath,
       presentationFeedback: {
         engaging: this.getIntegerField(fields.TopicEngagement, 3),
         clear: this.getIntegerField(fields.ConceptClarity, 3),

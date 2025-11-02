@@ -15,6 +15,8 @@ export interface PresentationFeedback {
 export interface SurveyResult {
   id: string;
   sessionId: string;
+  // Optional server-side path to the original uploaded image
+  imagePath?: string;
   attendeeType?: AttendeeType;
   aiLevel?: AILevel;
   usedAzureAI?: AzureAIUsage;

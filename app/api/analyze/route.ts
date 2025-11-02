@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dataStore } from '@/lib/data-store';
 import { AzureContentUnderstandingService } from '@/lib/azure-content-understanding';
 import { SurveyMapper } from '@/lib/survey-mapper';
+import fs from 'fs/promises';
+import path from 'path';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -57,6 +59,36 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // Persist original upload to disk before processing
+    // Save under <repo-root>/data/uploads with a unique filename
+    let savedImagePath: string | undefined;
+    try {
+      const uploadsDir = path.join(process.cwd(), 'data', 'uploads');
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      // determine extension
+      const mime = file.type || '';
+      const extMap: Record<string, string> = {
+        'image/jpeg': '.jpg',
+        'image/jpg': '.jpg',
+        'image/png': '.png',
+        'image/webp': '.webp',
+      };
+      const ext = extMap[mime] || path.extname((file as any).name) || '.jpg';
+
+      const fileName = `${Date.now()}-${crypto.randomUUID()}${ext}`;
+      const filePath = path.join(uploadsDir, fileName);
+
+      await fs.writeFile(filePath, buffer);
+      savedImagePath = filePath;
+    } catch (fsError) {
+      console.error('Failed to save uploaded image:', fsError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to save uploaded image' },
+        { status: 500 }
+      );
+    }
+
     // Call Azure AI Content Understanding
     const azureService = new AzureContentUnderstandingService();
     let extraction;
@@ -65,9 +97,10 @@ export async function POST(request: NextRequest) {
       extraction = await azureService.analyzeImage(buffer);
     } catch (azureError: unknown) {
       console.error('Azure AI error:', azureError);
-      
+
       // Return user-friendly error
-      if (azureError.message?.includes('not configured')) {
+      const azureMsg = (azureError as any)?.message;
+      if (typeof azureMsg === 'string' && azureMsg.includes('not configured')) {
         return NextResponse.json(
           {
             success: false,
@@ -90,7 +123,8 @@ export async function POST(request: NextRequest) {
     const mapper = new SurveyMapper();
     const surveyResult = mapper.mapToSurveyResult(
       extraction,
-      activeSession.id
+      activeSession.id,
+      savedImagePath
     );
 
     // Store result

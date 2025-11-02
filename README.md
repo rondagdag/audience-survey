@@ -37,20 +37,22 @@ npm install
 Copy the example environment file:
 
 ```bash
-cp .env.local.example .env.local
+cp .example.env.local .env.local
 ```
 
 Edit `.env.local` and add your credentials:
 
 ```env
 # Azure AI Content Understanding
-AZURE_CONTENT_ENDPOINT=https://your-resource-name.cognitiveservices.azure.com
+AZURE_CONTENT_ENDPOINT=https://your-resource-name.cognitiveservices.azure.com//
 AZURE_CONTENT_KEY=your-api-key-here
 AZURE_ANALYZER_ID=audience-survey
 
 # Admin Secret (use a strong random string)
 ADMIN_SECRET=your-secure-admin-secret-here
 ```
+
+⚠️ **Note**: You must restart the development server after changing `.env.local` for the changes to take effect.
 
 #### Getting Azure AI Content Understanding Credentials:
 
@@ -93,7 +95,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Technology Stack
 
-- **Frontend**: Next.js 15 (App Router), React 18, TypeScript
+- **Frontend**: Next.js 16 (App Router with Turbopack), React 19, TypeScript
 - **Styling**: Tailwind CSS, mobile-first responsive design
 - **State Management**: Zustand
 - **Charts**: Recharts
@@ -200,7 +202,19 @@ audience-survey/
 │   ├── azure-content-understanding.ts  # Azure integration
 │   └── survey-mapper.ts  # AI result mapping
 ├── tests/                # Playwright E2E tests
+├── iac/                  # Infrastructure as Code (Terraform)
 └── public/               # Static assets
+```
+
+### Testing
+
+### Available Commands
+
+```bash
+npm run dev       # Start dev server with Turbopack
+npm run build     # Production build
+npm run start     # Start production server
+npm run lint      # Run ESLint
 ```
 
 ### Testing
@@ -239,11 +253,14 @@ The codebase is structured for easy extension:
 
 ### Data Storage
 
-Currently uses in-memory storage (resets on server restart). For production:
+Currently uses in-memory storage (resets on server restart). Uploaded images are saved to `data/uploads/` directory with timestamps and preserved for reference.
+
+For production:
 
 1. Replace `lib/data-store.ts` with database integration (MongoDB, PostgreSQL, etc.)
 2. Update API routes to use the new data layer
 3. Maintain the same interface for minimal code changes
+4. Consider cloud storage (Azure Blob Storage, AWS S3) for uploaded images
 
 ## 🤝 Contributing
 
@@ -283,7 +300,7 @@ For issues and questions:
 - Try taking photo from directly above
 
 ### Azure API errors:
-- Verify endpoint URL format (should include https://)
+- Verify endpoint URL format (should include https:// and trailing /)
 - Check API key is correct
 - Ensure resource is in supported region
 - Confirm subscription has available quota
