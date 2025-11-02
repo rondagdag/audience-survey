@@ -1,4 +1,5 @@
 {
+	"baseAnalyzerId": "prebuilt-layout",
 	"fieldSchema": {
 		"fields": {
 			"Role": {
