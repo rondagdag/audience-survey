@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/app/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -13,11 +14,14 @@
 # testing
 /coverage
 /test-results/
+/app/test-results/
 /playwright-report/
+/app/playwright-report/
 /playwright/.cache/
 
 # next.js
 /.next/
+/app/.next/
 /out/
 
 # production
@@ -42,5 +46,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/app/next-env.d.ts
 
-data/
+# data uploads
+/data/
+/app/data/

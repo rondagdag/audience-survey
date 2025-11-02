@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       console.error('Azure AI error:', azureError);
 
       // Return user-friendly error
-      const azureMsg = (azureError as any)?.message;
+      const azureMsg = (azureError as { message?: string })?.message;
       if (typeof azureMsg === 'string' && azureMsg.includes('not configured')) {
         return NextResponse.json(
           {

@@ -1,8 +1,19 @@
 # Audience Survey - AI Agent Instructions
 
+## Project Structure
+
+The project is organized as follows:
+- **`app/`** - Next.js 16 application with App Router
+  - **`src/`** - All source code (app/, components/, lib/)
+  - **`tests/`** - Playwright E2E tests
+  - **`public/`** - Static assets
+- **`iac/`** - Terraform infrastructure as code
+- **`setup/`** - Setup scripts (e.g., analyzer creation)
+- **`docs/`** - Documentation files (all markdown except root README.md)
+
 ## Architecture Overview
 
-Next.js 16 App Router application for real-time audience feedback collection via photo uploads. **Core flow**: Attendee uploads survey photo → Azure AI Content Understanding extracts structured data → Live dashboard aggregates results.
+Next.js 16 App Router application (in `app/` directory with `src/` folder structure) for real-time audience feedback collection via photo uploads. **Core flow**: Attendee uploads survey photo → Azure AI Content Understanding extracts structured data → Live dashboard aggregates results.
 
 ### Critical Data Flow
 1. **Client** (`SurveyUploader`) → POST `/api/analyze` with FormData
@@ -12,7 +23,7 @@ Next.js 16 App Router application for real-time audience feedback collection via
 5. **DataStore singleton** persists → aggregation in `getSessionSummary()` → `/api/summary` → dashboard
 
 ### Blob Storage Pattern
-- Uploaded images stored in Azure Blob Storage (`BlobStorageService` in `lib/blob-storage.ts`)
+- Uploaded images stored in Azure Blob Storage (`BlobStorageService` in `src/lib/blob-storage.ts`)
 - Blob naming: `<timestamp>-<uuid>.<ext>` (e.g., `1730476396000-a1b2c3d4.jpg`)
 - `SurveyResult.imagePath` stores full blob URL for later reference (e.g., `https://account.blob.core.windows.net/uploads/...`)
 - CSV export includes `imagePath` (blob URL) as first column for traceability
@@ -20,8 +31,8 @@ Next.js 16 App Router application for real-time audience feedback collection via
 - Authentication: Connection string (local dev) or managed identity (production via DefaultAzureCredential)
 
 ### State Management Architecture
-- **Client**: Zustand stores (`lib/store.ts`) - `useSessionStore()` for sessions, `useUploadStore()` for upload state
-- **Server**: `DataStore` singleton (`lib/data-store.ts`) - in-memory Maps (sessions, surveyResults)
+- **Client**: Zustand stores (`src/lib/store.ts`) - `useSessionStore()` for sessions, `useUploadStore()` for upload state
+- **Server**: `DataStore` singleton (`src/lib/data-store.ts`) - in-memory Maps (sessions, surveyResults)
 - **Sync pattern**: Client polls APIs every 3-5 seconds (no WebSockets) - intervals cleared in useEffect cleanup
 
 ### Zustand Store Patterns
@@ -78,10 +89,10 @@ ADMIN_SECRET=your-secure-admin-secret-here                                      
 ## Development Patterns
 
 ### Adding Survey Fields (4-step process)
-1. **Types** (`lib/types.ts`): Add field to `PresentationFeedback` or `SurveyResult`
-2. **Mapper** (`lib/survey-mapper.ts`): Extract from Azure `fields` object in `mapToSurveyResult()`
-3. **Aggregation** (`lib/data-store.ts`): Update `getSessionSummary()` to calculate averages/counts
-4. **Visualization** (`components/`): Create component (examples: `FeedbackChart`, `NpsStrip`, `WordCloud`)
+1. **Types** (`src/lib/types.ts`): Add field to `PresentationFeedback` or `SurveyResult`
+2. **Mapper** (`src/lib/survey-mapper.ts`): Extract from Azure `fields` object in `mapToSurveyResult()`
+3. **Aggregation** (`src/lib/data-store.ts`): Update `getSessionSummary()` to calculate averages/counts
+4. **Visualization** (`src/components/`): Create component (examples: `FeedbackChart`, `NpsStrip`, `WordCloud`)
 
 ### API Route Standard Pattern
 ```typescript
@@ -124,7 +135,7 @@ export async function POST(request: NextRequest) {
 
 ### Component Conventions
 - **'use client'** directive on ALL interactive components (Next.js App Router requirement)
-- **No barrel exports** - always import directly: `import X from '@/components/X'`
+- **No barrel exports** - always import directly: `import X from '@/components/X'` (@ maps to src/ directory)
 - **Zustand hooks** must be at component top level (React rules)
 - **Polling cleanup**: Always clear intervals in useEffect return function
 
@@ -165,7 +176,7 @@ export async function POST(request: NextRequest) {
 - **API version**: `2025-05-01-preview` (custom analyzers)
 - **Endpoint format**: `https://<name>.services.ai.azure.com/` (AI Services, not legacy cognitiveservices domain)
 - **Polling**: Default 2s interval, 120s timeout
-- **Custom analyzer**: Must be created in Azure AI Studio with field schema matching `lib/types.ts`
+- **Custom analyzer**: Must be created in Azure AI Studio with field schema matching `src/lib/types.ts`
 - **AI Foundry Project**: Infrastructure includes Hub + Project for advanced AI workflows (agent development, model fine-tuning, etc.)
 - **Connection**: AI Services can be connected to AI Foundry Project via Azure Portal for unified management
 - **Error handling**: Throws "not configured" if env vars missing → caught in API route → user-friendly message
@@ -250,12 +261,12 @@ Example from `SurveyUploader`:
 Current `DataStore` uses Maps - **resets on server restart**. For production:
 1. Replace Maps with database client (MongoDB, PostgreSQL, etc.)
 2. Keep same interface: `createSession()`, `getSurveyResults()`, `getSessionSummary()`, etc.
-3. Update only `lib/data-store.ts` - zero changes to API routes
+3. Update only `src/lib/data-store.ts` - zero changes to API routes
 4. **Image files** (`data/uploads`) persist to disk but references in DataStore are in-memory only
 
 ### Singleton Export Pattern
 ```typescript
-// lib/data-store.ts
+// src/lib/data-store.ts
 export const dataStore = new DataStore();
 
 // All API routes import singleton

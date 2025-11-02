@@ -25,11 +25,35 @@ A Next.js application for collecting and analyzing audience feedback during spea
 - Azure subscription with AI Content Understanding resource
 - (Optional) Vercel account for deployment
 
-## 🚀 Quick Start
+## � Project Structure
+
+```
+audience-survey/
+├── app/                  # Next.js application
+│   ├── src/              # Source code
+│   │   ├── app/          # App Router pages and API routes
+│   │   ├── components/   # React components
+│   │   └── lib/          # Utilities and business logic
+│   ├── tests/            # Playwright E2E tests
+│   ├── public/           # Static assets
+│   └── ...               # Config files (package.json, tsconfig.json, etc.)
+├── iac/                  # Infrastructure as Code (Terraform)
+├── setup/                # Setup scripts
+├── docs/                 # Documentation
+│   ├── QUICKSTART.md     # Quick setup guide
+│   ├── AZURE_INTEGRATION.md  # Azure setup details
+│   ├── ANALYZER_SCHEMA.md    # Custom analyzer schema
+│   ├── TESTING.md        # Testing guide
+│   └── ...               # Additional documentation
+└── README.md             # This file
+```
+
+## �🚀 Quick Start
 
 ### 1. Install Dependencies
 
 ```bash
+cd app
 npm install
 ```
 
@@ -59,7 +83,7 @@ ADMIN_SECRET=your-secure-admin-secret-here
 
 **Option 1: Deploy with Terraform (Recommended)**
 
-1. Follow the [Infrastructure as Code guide](iac/README.md)
+1. Follow the [Infrastructure as Code guide](../iac/README.md)
 2. Terraform creates all required resources including:
    - Azure AI Services (for Content Understanding)
    - Azure AI Foundry Hub and Project
@@ -72,20 +96,23 @@ ADMIN_SECRET=your-secure-admin-secret-here
 2. Create an **Azure AI Services** resource (not just "Content Understanding")
    - This provides Content Understanding + other AI capabilities
    - Note the endpoint format: `https://<name>.services.ai.azure.com/`
-3. (Optional but recommended) Create Azure AI Foundry Hub and Project
+4. (Optional but recommended) Create Azure AI Foundry Hub and Project
    - Navigate to [Azure AI Studio](https://ai.azure.com)
    - Create a new Hub and Project
    - Connect your AI Services resource to the project
-4. Navigate to AI Services → "Keys and Endpoint"
-5. Copy the endpoint URL and one of the keys
-6. Create a custom analyzer in Azure AI Studio
+5. Navigate to AI Services → "Keys and Endpoint"
+6. Copy the endpoint URL and one of the keys
+7. Create a custom analyzer in Azure AI Studio
    - Go to your AI Services resource in [Azure AI Studio](https://ai.azure.com)
    - Create analyzer with ID: `audience-survey`
-   - Configure fields per ANALYZER_SCHEMA.md
+   - Configure fields per [ANALYZER_SCHEMA.md](docs/ANALYZER_SCHEMA.md)
+
+For detailed setup instructions, see [QUICKSTART.md](docs/QUICKSTART.md).
 
 ### 3. Run Development Server
 
 ```bash
+cd app
 npm run dev
 ```
 
@@ -178,6 +205,7 @@ The application expects surveys with these fields:
 ### Deploy to Vercel:
 
 ```bash
+cd app
 npm install -g vercel
 vercel
 ```
@@ -191,6 +219,8 @@ Add environment variables in Vercel dashboard:
 ### Deploy to Azure Static Web Apps:
 
 ```bash
+cd app
+
 # Install Azure Static Web Apps CLI
 npm install -g @azure/static-web-apps-cli
 
@@ -201,35 +231,42 @@ npm run build
 swa deploy
 ```
 
+For infrastructure deployment, see [iac/README.md](iac/README.md).
+
 ## 🛠️ Development
 
-### Project Structure
+### Application Architecture
+
+The Next.js application in `app/` contains:
 
 ```
-audience-survey/
-├── app/
-│   ├── api/              # API routes
-│   │   ├── analyze/      # Image analysis endpoint
-│   │   ├── sessions/     # Session management
-│   │   ├── summary/      # Aggregated results
-│   │   └── export/       # CSV export
-│   ├── admin/            # Speaker dashboard
-│   └── page.tsx          # Main audience view
-├── components/           # React components
-├── lib/
-│   ├── types.ts          # TypeScript definitions
-│   ├── store.ts          # Zustand state management
-│   ├── data-store.ts     # In-memory data storage
-│   ├── azure-content-understanding.ts  # Azure integration
-│   └── survey-mapper.ts  # AI result mapping
+app/
+├── src/
+│   ├── app/              # App Router pages and API routes
+│   │   ├── api/          # API routes
+│   │   │   ├── analyze/  # Image analysis endpoint
+│   │   │   ├── sessions/ # Session management
+│   │   │   ├── summary/  # Aggregated results
+│   │   │   └── export/   # CSV export
+│   │   ├── admin/        # Speaker dashboard
+│   │   └── page.tsx      # Main audience view
+│   ├── components/       # React components
+│   └── lib/              # Utilities and business logic
+│       ├── types.ts      # TypeScript definitions
+│       ├── store.ts      # Zustand state management
+│       ├── data-store.ts # In-memory data storage
+│       ├── azure-content-understanding.ts  # Azure integration
+│       └── survey-mapper.ts  # AI result mapping
 ├── tests/                # Playwright E2E tests
-├── iac/                  # Infrastructure as Code (Terraform)
-└── public/               # Static assets
+├── public/               # Static assets
+└── ...                   # Config files
 ```
 
 ### Testing
 
 ### Available Commands
+
+From the `app/` directory:
 
 ```bash
 npm run dev       # Start dev server with Turbopack
@@ -243,6 +280,8 @@ npm run lint      # Run ESLint
 Run end-to-end tests with Playwright:
 
 ```bash
+cd app
+
 # Run all tests (headless)
 npm run test:e2e
 
@@ -261,16 +300,16 @@ Test suites:
 - **audience.spec.ts**: Upload flow, mobile responsiveness
 - **api.spec.ts**: API endpoints, validation, error handling
 
-Tests automatically start the dev server if not running.
+Tests automatically start the dev server if not running. For details, see [TESTING.md](docs/TESTING.md).
 
 ### Adding Features
 
 The codebase is structured for easy extension:
 
-- Add new survey fields in `lib/types.ts`
-- Extend mapping logic in `lib/survey-mapper.ts`
-- Create new visualizations in `components/`
-- Add API endpoints in `app/api/`
+- Add new survey fields in `src/lib/types.ts`
+- Extend mapping logic in `src/lib/survey-mapper.ts`
+- Create new visualizations in `src/components/`
+- Add API endpoints in `src/app/api/`
 
 ### Data Storage
 
@@ -278,10 +317,12 @@ Currently uses in-memory storage (resets on server restart). Uploaded images are
 
 For production:
 
-1. Replace `lib/data-store.ts` with database integration (MongoDB, PostgreSQL, etc.)
+1. Replace `app/src/lib/data-store.ts` with database integration (MongoDB, PostgreSQL, etc.)
 2. Update API routes to use the new data layer
 3. Maintain the same interface for minimal code changes
 4. Consider cloud storage (Azure Blob Storage, AWS S3) for uploaded images
+
+See [BLOB_STORAGE.md](docs/BLOB_STORAGE.md) for storage implementation details.
 
 ## 🤝 Contributing
 
@@ -305,10 +346,20 @@ MIT License - feel free to use this for your own presentations and events!
 - Charts by Recharts
 - Confetti by canvas-confetti
 
-## 📞 Support
+## � Documentation
+
+- **[QUICKSTART.md](docs/QUICKSTART.md)** - Quick setup guide
+- **[AZURE_INTEGRATION.md](docs/AZURE_INTEGRATION.md)** - Azure services setup
+- **[ANALYZER_SCHEMA.md](docs/ANALYZER_SCHEMA.md)** - Custom analyzer configuration
+- **[TESTING.md](docs/TESTING.md)** - Testing guide with Playwright
+- **[BLOB_STORAGE.md](docs/BLOB_STORAGE.md)** - Storage implementation details
+- **[iac/README.md](iac/README.md)** - Infrastructure as Code with Terraform
+
+## �📞 Support
 
 For issues and questions:
 - Check the [Azure AI Content Understanding documentation](https://learn.microsoft.com/azure/ai-services/content-understanding/)
+- Review the documentation in the `docs/` folder
 - Open an issue in the GitHub repository
 - Review the troubleshooting section below
 
