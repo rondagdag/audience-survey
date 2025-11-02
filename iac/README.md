@@ -17,12 +17,20 @@ The Terraform configuration provisions the following Azure resources:
   - Container: `uploads` (private access)
   - CORS enabled for web uploads
   - 7-day retention policy
-- **Azure AI Services** - Content Understanding with custom analyzer
+- **Azure AI Services** - Multi-service AI resource (Content Understanding + more)
   - Custom subdomain for API endpoint
   - S0 SKU tier
+  - Provides Content Understanding API for the application
+- **Azure AI Foundry Hub** - Central governance for AI projects
+  - Connected to Storage and Key Vault
+  - System-assigned managed identity
+- **Azure AI Foundry Project** - AI workflow orchestration
+  - Connected to AI Foundry Hub
+  - Enables advanced AI scenarios (agents, model fine-tuning, evaluation)
+  - Optional connection to AI Services (created via portal/CLI)
 - **Key Vault** - Secure storage for secrets and keys
   - Storage connection string
-  - AI Content Understanding API key and endpoint
+  - AI Services API key and endpoint
   - Generated admin secret
 - **App Service Plan** - Linux-based hosting (B1 SKU default)
 - **App Service** - Next.js web application
@@ -167,6 +175,23 @@ After infrastructure deployment, configure the Azure AI Content Understanding an
 4. Configure fields according to `../ANALYZER_SCHEMA.md`
 5. Train and deploy the analyzer
 
+### (Optional) Create AI Services Connection in AI Foundry Project
+
+To enable advanced AI workflows within the Foundry Project:
+
+1. Navigate to [Azure AI Foundry portal](https://ai.azure.com)
+2. Open your AI Foundry Project
+3. Select **Management center** → **Connected resources**
+4. Click **+ New connection**
+5. Select **Azure AI services**
+6. Choose your AI Services resource from the list
+7. Click **Add connection**
+
+This connection is **optional** for basic Content Understanding usage but enables:
+- Using Content Understanding in Prompt Flow
+- Integrating with AI Foundry Agent Service
+- Unified access control and monitoring
+
 ## 🔧 Configuration
 
 ### Variables
@@ -232,6 +257,16 @@ terraform destroy
 5. **RBAC** - App Service uses least-privilege role assignments
 
 ## 🆘 Troubleshooting
+
+### Architecture Note
+
+The application accesses Content Understanding via the **AI Services endpoint directly**. The AI Foundry Project connection is optional and enables advanced scenarios like:
+- AI agent development with Foundry Agent Service
+- Model fine-tuning on survey data
+- Prompt Flow integration
+- Unified governance and monitoring
+
+For basic Content Understanding API usage, only the AI Services credentials are required.
 
 ### Error: "Custom subdomain already exists"
 

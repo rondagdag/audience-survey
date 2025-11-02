@@ -6,17 +6,18 @@ Next.js 16 App Router application for real-time audience feedback collection via
 
 ### Critical Data Flow
 1. **Client** (`SurveyUploader`) → POST `/api/analyze` with FormData
-2. **API route** converts File to Buffer → **saves to `data/uploads/`** (persistent storage) → `AzureContentUnderstandingService.analyzeImage()`
+2. **API route** converts File to Buffer → **uploads to Azure Blob Storage** → `AzureContentUnderstandingService.analyzeImage()`
 3. **Azure REST API** (2-step): POST to start analysis → poll `operation-location` until status='succeeded'
-4. **Azure response** → `SurveyMapper.mapToSurveyResult()` → structured `SurveyResult` (includes `imagePath`)
+4. **Azure response** → `SurveyMapper.mapToSurveyResult()` → structured `SurveyResult` (includes `imagePath` with blob URL)
 5. **DataStore singleton** persists → aggregation in `getSessionSummary()` → `/api/summary` → dashboard
 
-### File Upload & Storage Pattern
-- Uploaded images saved to `data/uploads/<timestamp>-<uuid>.<ext>` before processing
-- `SurveyResult.imagePath` stores absolute file path for later reference
-- CSV export includes `imagePath` as first column for traceability
-- File save errors return 500 with "Failed to save uploaded image"
-- Creates `data/uploads` directory recursively if missing (`fs.mkdir(uploadsDir, { recursive: true })`)
+### Blob Storage Pattern
+- Uploaded images stored in Azure Blob Storage (`BlobStorageService` in `lib/blob-storage.ts`)
+- Blob naming: `<timestamp>-<uuid>.<ext>` (e.g., `1730476396000-a1b2c3d4.jpg`)
+- `SurveyResult.imagePath` stores full blob URL for later reference (e.g., `https://account.blob.core.windows.net/uploads/...`)
+- CSV export includes `imagePath` (blob URL) as first column for traceability
+- Upload errors return 500 with "Failed to upload image to storage"
+- Authentication: Connection string (local dev) or managed identity (production via DefaultAzureCredential)
 
 ### State Management Architecture
 - **Client**: Zustand stores (`lib/store.ts`) - `useSessionStore()` for sessions, `useUploadStore()` for upload state
@@ -57,15 +58,22 @@ Next.js 16 App Router application for real-time audience feedback collection via
 ### Environment Variables
 ```env
 # Azure AI Content Understanding Configuration
-AZURE_CONTENT_ENDPOINT=https://your-resource-name.cognitiveservices.azure.com/  # REQUIRED
-AZURE_CONTENT_KEY=your-api-key-here                                              # REQUIRED
-AZURE_ANALYZER_ID=audience-survey                                                # REQUIRED - Custom analyzer name
+# Credentials from Azure AI Services resource (connected to AI Foundry Project)
+AZURE_CONTENT_ENDPOINT=https://your-aiservices-name.services.ai.azure.com/      # REQUIRED
+AZURE_CONTENT_KEY=your-api-key-here                                             # REQUIRED
+AZURE_ANALYZER_ID=audience-survey                                               # REQUIRED - Custom analyzer name
+
+# Azure Blob Storage Configuration (for uploaded images)
+AZURE_STORAGE_CONNECTION_STRING=your-storage-connection-string-here              # REQUIRED for local dev
+# AZURE_STORAGE_ACCOUNT_NAME=your-storage-account-name                          # Alternative for managed identity in production
+AZURE_STORAGE_CONTAINER_NAME=uploads                                             # OPTIONAL - defaults to "uploads"
 
 # Admin Secret for Session Management
 ADMIN_SECRET=your-secure-admin-secret-here                                       # REQUIRED - protects /admin routes
 ```
 ⚠️ **Dev workflow**: Must restart server after `.env.local` changes
 ⚠️ **Setup**: Copy `.example.env.local` to `.env.local` and fill in your credentials
+⚠️ **Storage auth**: Use connection string for local dev, managed identity for production (via `AZURE_STORAGE_ACCOUNT_NAME`)
 
 ## Development Patterns
 
@@ -153,9 +161,13 @@ export async function POST(request: NextRequest) {
 - Portrait orientation common - test responsive layouts at 375px width
 
 ### Azure Integration Specifics
+- **Architecture**: Application → Azure AI Services (Content Understanding) ←→ AI Foundry Project (optional connection)
 - **API version**: `2025-05-01-preview` (custom analyzers)
+- **Endpoint format**: `https://<name>.services.ai.azure.com/` (AI Services, not legacy cognitiveservices domain)
 - **Polling**: Default 2s interval, 120s timeout
 - **Custom analyzer**: Must be created in Azure AI Studio with field schema matching `lib/types.ts`
+- **AI Foundry Project**: Infrastructure includes Hub + Project for advanced AI workflows (agent development, model fine-tuning, etc.)
+- **Connection**: AI Services can be connected to AI Foundry Project via Azure Portal for unified management
 - **Error handling**: Throws "not configured" if env vars missing → caught in API route → user-friendly message
 - **Buffer casting**: `imageBuffer as unknown as BodyInit` to satisfy TypeScript (required for Next.js)
 - **Error narrowing**: Azure errors are `unknown` type; cast to `(azureError as any)?.message` to access properties safely

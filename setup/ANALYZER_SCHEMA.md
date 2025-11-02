@@ -6,9 +6,14 @@ This file contains the field schema for creating a custom analyzer in Azure AI C
 
 **Analyzer Name:** `audience-survey`  
 **API Version:** `2025-05-01-preview`  
-**Method:** Field Extraction
+**Method:** Field Extraction  
+**AI Services Endpoint:** `https://audsurvey-aiservices-l56h90.services.ai.azure.com/`  
+**AI Foundry Project:** `audsurvey-project-l56h90` (optional connection)  
+**Schema File:** `docs/cu-task-5068_prebuilt-documentAnalyzer_2025-05-01-preview.json`
 
 ## Field Definitions
+
+The complete schema is stored in [`docs/cu-task-5068_prebuilt-documentAnalyzer_2025-05-01-preview.json`](docs/cu-task-5068_prebuilt-documentAnalyzer_2025-05-01-preview.json).
 
 Copy this JSON schema when creating the analyzer in Azure AI Studio:
 
@@ -120,38 +125,93 @@ Copy this JSON schema when creating the analyzer in Azure AI Studio:
 
 ## Creating the Analyzer
 
-### Via Azure Portal
+### Via Azure Portal / AI Studio
 
-1. Navigate to your Azure AI Content Understanding resource
-2. Go to "Analyzers" section
-3. Click "Create analyzer"
-4. Enter analyzer name: `audience-survey`
-5. Select "Custom field extraction"
-6. Copy-paste the JSON schema above
-7. Save and deploy
+**Option 1: Azure AI Studio (Recommended)**
+
+1. Navigate to [Azure AI Studio](https://ai.azure.com)
+2. Open your AI Services resource: `audsurvey-aiservices-l56h90`
+3. Go to "Content Understanding" or "Analyzers" section
+4. Click "Create analyzer"
+5. Enter analyzer name: `audience-survey`
+6. Select "Custom field extraction"
+7. Upload or paste schema from `docs/cu-task-5068_prebuilt-documentAnalyzer_2025-05-01-preview.json`
+8. Save and deploy
+
+**Option 2: Azure Portal (Direct)**
+
+1. Navigate to [Azure Portal](https://portal.azure.com)
+2. Find your AI Services resource: `audsurvey-aiservices-l56h90`
+3. Follow similar steps as above
 
 ### Via Azure CLI
 
 ```bash
-# Create analyzer with schema
+# Create analyzer with schema file
 az cognitiveservices content-understanding analyzer create \
-  --resource-group your-resource-group \
-  --account-name your-account-name \
+  --resource-group rg-audience-survey \
+  --account-name audsurvey-aiservices-l56h90 \
   --analyzer-name audience-survey \
-  --schema @analyzer-schema.json
+  --schema @docs/cu-task-5068_prebuilt-documentAnalyzer_2025-05-01-preview.json
+
+# Or get resource name from Terraform
+RESOURCE_GROUP=$(cd iac && terraform output -raw resource_group_name)
+AI_SERVICES_NAME=$(cd iac && terraform output -raw ai_services_name)
+
+az cognitiveservices content-understanding analyzer create \
+  --resource-group $RESOURCE_GROUP \
+  --account-name $AI_SERVICES_NAME \
+  --analyzer-name audience-survey \
+  --schema @docs/cu-task-5068_prebuilt-documentAnalyzer_2025-05-01-preview.json
 ```
 
-### Via REST API
+### Via REST API (Shell Script)
+
+**Using the provided script with environment variables:**
 
 ```bash
-PUT https://{endpoint}/contentunderstanding/analyzers/audience-survey?api-version=2025-05-01-preview
-Content-Type: application/json
-Ocp-Apim-Subscription-Key: {your-key}
+# Export credentials from Terraform
+cd iac
+export AZURE_CONTENT_ENDPOINT=$(terraform output -raw ai_services_endpoint)
+export AZURE_CONTENT_KEY=$(terraform output -raw ai_services_key)
+cd ..
 
-{
-  "fieldSchema": { ... }
-}
+# Run script
+./create-analyzer.sh
 ```
+
+**Using command line parameters:**
+
+```bash
+# Get credentials from Terraform
+cd iac
+ENDPOINT=$(terraform output -raw ai_services_endpoint)
+API_KEY=$(terraform output -raw ai_services_key)
+cd ..
+
+# Run with parameters
+./create-analyzer.sh "$ENDPOINT" "$API_KEY" "audience-survey"
+```
+
+**Manual curl command:**
+
+```bash
+# Get credentials from Terraform
+ENDPOINT=$(cd iac && terraform output -raw ai_services_endpoint)
+API_KEY=$(cd iac && terraform output -raw ai_services_key)
+
+# Create analyzer
+curl -X PUT "${ENDPOINT}/contentunderstanding/analyzers/audience-survey?api-version=2025-05-01-preview" \
+  -H "Content-Type: application/json" \
+  -H "Ocp-Apim-Subscription-Key: ${API_KEY}" \
+  -d @docs/cu-task-5068_prebuilt-documentAnalyzer_2025-05-01-preview.json
+```
+
+**Expected response:**
+- HTTP 201: Created successfully
+- HTTP 200: Already exists (updated)
+- HTTP 401: Invalid API key
+- HTTP 400: Invalid schema format
 
 ## Training Recommendations
 
@@ -230,6 +290,12 @@ If you need to add or modify fields:
 
 ## Version History
 
+- **v1.1** (2025-11-02): Updated for AI Foundry Project integration
+  - Now uses Azure AI Services endpoint: `audsurvey-aiservices-l56h90.services.ai.azure.com`
+  - Connected to AI Foundry Project: `audsurvey-project-l56h90`
+  - Schema stored in: `docs/cu-task-5068_prebuilt-documentAnalyzer_2025-05-01-preview.json`
+  - Updated creation instructions for new architecture
+
 - **v1.0** (2025-11-01): Initial schema with 14 fields
   - 8 string fields
   - 6 integer fields
@@ -237,6 +303,8 @@ If you need to add or modify fields:
 
 ---
 
-**Schema Version:** 1.0  
-**Last Updated:** November 1, 2025  
-**API Version:** 2025-05-01-preview
+**Schema Version:** 1.1  
+**Last Updated:** November 2, 2025  
+**API Version:** 2025-05-01-preview  
+**AI Services Resource:** `audsurvey-aiservices-l56h90`  
+**AI Foundry Project:** `audsurvey-project-l56h90`

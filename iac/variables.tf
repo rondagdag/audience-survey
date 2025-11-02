@@ -45,11 +45,11 @@ variable "tags" {
 variable "app_service_sku" {
   description = "SKU for App Service Plan"
   type        = string
-  default     = "B1"
+  default     = "F1"
   
   validation {
-    condition     = contains(["B1", "B2", "S1", "S2", "P1V2", "P2V2"], var.app_service_sku)
-    error_message = "App Service SKU must be a valid tier (B1, B2, S1, S2, P1V2, P2V2)."
+    condition     = contains(["F1", "B1", "B2", "S1", "S2", "P1V2", "P2V2"], var.app_service_sku)
+    error_message = "App Service SKU must be a valid tier (F1, B1, B2, S1, S2, P1V2, P2V2)."
   }
 }
 

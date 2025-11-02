@@ -13,6 +13,14 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.0"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.0"
+    }
   }
 }
 
@@ -88,11 +96,19 @@ resource "azurerm_key_vault" "main" {
   tenant_id                  = data.azurerm_client_config.current.tenant_id
   sku_name                   = "standard"
   soft_delete_retention_days = 7
-  purge_protection_enabled   = false
+  purge_protection_enabled   = true
   
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = data.azurerm_client_config.current.object_id
+    
+    key_permissions = [
+      "Create",
+      "Get",
+      "Delete",
+      "Purge",
+      "GetRotationPolicy",
+    ]
     
     secret_permissions = [
       "Get",
@@ -114,33 +130,123 @@ resource "azurerm_key_vault_secret" "storage_connection_string" {
   key_vault_id = azurerm_key_vault.main.id
 }
 
-# AI Content Understanding Resource (Azure AI Services)
-# CRITICAL: Content Understanding requires AIServices with custom_subdomain_name
-# Generic CognitiveServices endpoint will NOT work
-resource "azurerm_cognitive_account" "ai_content" {
-  name                  = "${var.project_name}-ai-${random_string.suffix.result}"
+# Azure AI Services (for AI Foundry and Content Understanding)
+# CRITICAL: Content Understanding is accessed via AI Foundry Project connection to this AI Services resource
+resource "azurerm_ai_services" "main" {
+  name                  = "${var.project_name}-aiservices-${random_string.suffix.result}"
   location              = azurerm_resource_group.main.location
   resource_group_name   = azurerm_resource_group.main.name
-  kind                  = "AIServices"
   sku_name              = "S0"
-  custom_subdomain_name = "${var.project_name}-ai-${random_string.suffix.result}"
+  custom_subdomain_name = "${var.project_name}-aiservices-${random_string.suffix.result}"
   
   tags = var.tags
 }
 
-# Store AI Content Understanding key in Key Vault
-resource "azurerm_key_vault_secret" "ai_content_key" {
+# Store AI Services key in Key Vault (for Content Understanding)
+resource "azurerm_key_vault_secret" "ai_services_key" {
   name         = "azure-content-key"
-  value        = azurerm_cognitive_account.ai_content.primary_access_key
+  value        = azurerm_ai_services.main.primary_access_key
   key_vault_id = azurerm_key_vault.main.id
 }
 
-# Store AI Content Understanding endpoint in Key Vault
-resource "azurerm_key_vault_secret" "ai_content_endpoint" {
+# Store AI Services endpoint in Key Vault (for Content Understanding)
+resource "azurerm_key_vault_secret" "ai_services_endpoint" {
   name         = "azure-content-endpoint"
-  value        = azurerm_cognitive_account.ai_content.endpoint
+  value        = azurerm_ai_services.main.endpoint
   key_vault_id = azurerm_key_vault.main.id
 }
+
+# Azure AI Foundry Hub
+resource "azurerm_ai_foundry" "hub" {
+  name                = "${var.project_name}-hub-${random_string.suffix.result}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  storage_account_id  = azurerm_storage_account.main.id
+  key_vault_id        = azurerm_key_vault.main.id
+  
+  identity {
+    type = "SystemAssigned"
+  }
+  
+  tags = var.tags
+}
+
+# Azure AI Foundry Project
+# Connected to AI Services resource for Content Understanding and AI models
+resource "azurerm_ai_foundry_project" "main" {
+  name               = "${var.project_name}-project-${random_string.suffix.result}"
+  location           = azurerm_ai_foundry.hub.location
+  ai_services_hub_id = azurerm_ai_foundry.hub.id
+  
+  identity {
+    type = "SystemAssigned"
+  }
+  
+  tags = var.tags
+}
+
+# Generate AI Services connection YAML file from template
+resource "local_file" "ai_services_connection_yml" {
+  content = templatefile("${path.module}/aiservices-connection.yml", {
+    ai_services_endpoint      = azurerm_ai_services.main.endpoint
+    ai_services_resource_id   = azurerm_ai_services.main.id
+  })
+  filename = "${path.module}/aiservices-connection-generated.yml"
+}
+
+# Create AI Services connection to AI Foundry Project using Azure CLI
+# This enables Content Understanding and AI model access within the AI Foundry Project
+resource "null_resource" "ai_services_connection" {
+  depends_on = [
+    azurerm_ai_foundry_project.main,
+    azurerm_ai_services.main,
+    local_file.ai_services_connection_yml
+  ]
+  
+  provisioner "local-exec" {
+    command = <<-EOT
+      az ml connection show \
+        --name aiservices-connection \
+        --resource-group ${azurerm_resource_group.main.name} \
+        --workspace-name ${azurerm_ai_foundry_project.main.name} >/dev/null 2>&1 || \
+      az ml connection create \
+        --file ${local_file.ai_services_connection_yml.filename} \
+        --resource-group ${azurerm_resource_group.main.name} \
+        --workspace-name ${azurerm_ai_foundry_project.main.name}
+    EOT
+  }
+  
+  # Trigger recreation if AI Services resource changes
+  triggers = {
+    ai_services_id = azurerm_ai_services.main.id
+    project_id     = azurerm_ai_foundry_project.main.id
+    yaml_content   = local_file.ai_services_connection_yml.content
+  }
+}
+
+# Grant AI Foundry Hub access to Key Vault
+resource "azurerm_key_vault_access_policy" "hub" {
+  key_vault_id = azurerm_key_vault.main.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_ai_foundry.hub.identity[0].principal_id
+  
+  key_permissions = [
+    "Create",
+    "Get",
+    "Delete",
+    "Purge",
+    "GetRotationPolicy",
+  ]
+  
+  secret_permissions = [
+    "Get",
+    "List",
+    "Set"
+  ]
+}
+
+# Note: Azure AI Foundry Hub and Project automatically create role assignments
+# for Storage Account access with specific conditions. These are managed by Azure.
 
 # Generate secure admin secret
 resource "random_password" "admin_secret" {
@@ -174,7 +280,7 @@ resource "azurerm_linux_web_app" "main" {
   service_plan_id     = azurerm_service_plan.main.id
   
   site_config {
-    always_on = true
+    always_on = var.app_service_sku != "F1" ? true : false  # Free tier doesn't support always_on
     
     application_stack {
       node_version = "20-lts"
@@ -188,10 +294,14 @@ resource "azurerm_linux_web_app" "main" {
   }
   
   app_settings = {
-    # Azure AI Content Understanding
-    AZURE_CONTENT_ENDPOINT = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.ai_content_endpoint.id})"
-    AZURE_CONTENT_KEY      = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.ai_content_key.id})"
+    # Azure AI Content Understanding (via AI Services)
+    AZURE_CONTENT_ENDPOINT = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.ai_services_endpoint.id})"
+    AZURE_CONTENT_KEY      = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.ai_services_key.id})"
     AZURE_ANALYZER_ID      = var.analyzer_id
+    
+    # Azure Blob Storage (uses managed identity for auth in production)
+    AZURE_STORAGE_ACCOUNT_NAME   = azurerm_storage_account.main.name
+    AZURE_STORAGE_CONTAINER_NAME = azurerm_storage_container.uploads.name
     
     # Admin Secret for Session Management
     ADMIN_SECRET = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.admin_secret.id})"
@@ -199,7 +309,6 @@ resource "azurerm_linux_web_app" "main" {
     # Next.js settings
     WEBSITE_NODE_DEFAULT_VERSION       = "20-lts"
     SCM_DO_BUILD_DURING_DEPLOYMENT     = "true"
-    WEBSITE_HTTPLOGGING_RETENTION_DAYS = "7"
     
     # Performance optimizations
     WEBSITE_RUN_FROM_PACKAGE = "1"

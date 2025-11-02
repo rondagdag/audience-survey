@@ -7,7 +7,8 @@ A Next.js application for collecting and analyzing audience feedback during spea
 ## 🌟 Features
 
 - **Mobile-First Upload**: Camera-optimized interface for quick survey photo capture
-- **Azure AI Content Understanding**: Automatic extraction of checkboxes, numbers, and handwritten text
+- **Azure AI Content Understanding**: Automatic extraction of checkboxes, numbers, and handwritten text via Azure AI Services
+- **Azure AI Foundry Integration**: Connected to AI Foundry Project for advanced AI workflows
 - **Live Dashboard**: Real-time feedback aggregation for speakers
 - **Session Management**: Create and manage multiple feedback sessions
 - **Rich Analytics**:
@@ -54,14 +55,33 @@ ADMIN_SECRET=your-secure-admin-secret-here
 
 ⚠️ **Note**: You must restart the development server after changing `.env.local` for the changes to take effect.
 
-#### Getting Azure AI Content Understanding Credentials:
+#### Getting Azure Credentials:
+
+**Option 1: Deploy with Terraform (Recommended)**
+
+1. Follow the [Infrastructure as Code guide](iac/README.md)
+2. Terraform creates all required resources including:
+   - Azure AI Services (for Content Understanding)
+   - Azure AI Foundry Hub and Project
+   - Storage, Key Vault, and App Service
+3. Retrieve credentials from Terraform outputs
+
+**Option 2: Manual Setup**
 
 1. Go to [Azure Portal](https://portal.azure.com)
-2. Create a new "AI Content Understanding" resource
-3. Navigate to "Keys and Endpoint" section
-4. Copy the endpoint URL and one of the keys
-5. Create a custom analyzer in Azure AI Studio with the survey field schema
-6. Copy the analyzer ID (default: `audience-survey`)
+2. Create an **Azure AI Services** resource (not just "Content Understanding")
+   - This provides Content Understanding + other AI capabilities
+   - Note the endpoint format: `https://<name>.services.ai.azure.com/`
+3. (Optional but recommended) Create Azure AI Foundry Hub and Project
+   - Navigate to [Azure AI Studio](https://ai.azure.com)
+   - Create a new Hub and Project
+   - Connect your AI Services resource to the project
+4. Navigate to AI Services → "Keys and Endpoint"
+5. Copy the endpoint URL and one of the keys
+6. Create a custom analyzer in Azure AI Studio
+   - Go to your AI Services resource in [Azure AI Studio](https://ai.azure.com)
+   - Create analyzer with ID: `audience-survey`
+   - Configure fields per ANALYZER_SCHEMA.md
 
 ### 3. Run Development Server
 
@@ -99,8 +119,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - **Styling**: Tailwind CSS, mobile-first responsive design
 - **State Management**: Zustand
 - **Charts**: Recharts
-- **AI Processing**: Azure AI Content Understanding REST API
-- **Deployment**: Vercel / Azure Static Web Apps
+- **AI Processing**: Azure AI Services (Content Understanding API)
+- **AI Platform**: Azure AI Foundry (Hub + Project for advanced AI workflows)
+- **Deployment**: Vercel / Azure App Service / Azure Static Web Apps
 
 ### Key Components
 
@@ -300,10 +321,12 @@ For issues and questions:
 - Try taking photo from directly above
 
 ### Azure API errors:
-- Verify endpoint URL format (should include https:// and trailing /)
-- Check API key is correct
-- Ensure resource is in supported region
+- Verify endpoint URL format: `https://<name>.services.ai.azure.com/`
+  - Azure AI Services endpoint (not legacy cognitiveservices.azure.com)
+- Check API key is correct (from AI Services resource)
+- Ensure resource is in supported region (westus, swedencentral, australiaeast)
 - Confirm subscription has available quota
+- If using AI Foundry Project, verify connection to AI Services is active
 
 ### No active session:
 - Admin must create a session from `/admin` page

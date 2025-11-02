@@ -4,7 +4,14 @@ This document explains how the Audience Survey application integrates with Azure
 
 ## Overview
 
-The application uses **Azure AI Content Understanding** with a custom analyzer to extract structured data from survey form images. The service uses advanced AI models to:
+The application uses **Azure AI Content Understanding** (via Azure AI Services) with a custom analyzer to extract structured data from survey form images. The Azure AI Services resource is integrated with an **Azure AI Foundry Project**, which provides a unified platform for AI workflows, model deployments, and connections.
+
+**Architecture:**
+- **Azure AI Services**: Provides Content Understanding API and other AI capabilities
+- **Azure AI Foundry Project**: Connected to AI Services for advanced AI workflows and model management
+- **Application**: Uses AI Services endpoint directly for Content Understanding API calls
+
+The service uses advanced AI models to:
 
 1. Perform OCR (Optical Character Recognition) on the image
 2. Extract specific fields based on a custom schema
@@ -176,19 +183,34 @@ const surveyResult = mapper.mapToSurveyResult(azureResult, sessionId);
 Required configuration in `.env.local`:
 
 ```env
-AZURE_CONTENT_ENDPOINT=https://your-resource.cognitiveservices.azure.com/
+AZURE_CONTENT_ENDPOINT=https://your-aiservices-name.services.ai.azure.com/
 AZURE_CONTENT_KEY=your-32-char-api-key
 AZURE_ANALYZER_ID=audience-survey
 ```
 
 **Getting Credentials:**
 
-1. Create Azure AI Content Understanding resource in Azure Portal
-2. Navigate to resource → "Keys and Endpoint"
-3. Copy endpoint URL (include trailing slash)
-4. Copy Key 1 or Key 2
-5. Create custom analyzer in Azure AI Studio
-6. Use analyzer ID in environment variable
+1. **Deploy infrastructure** using Terraform (see `iac/README.md`) or create resources manually:
+   - Azure AI Services resource (provides Content Understanding)
+   - Azure AI Foundry Hub
+   - Azure AI Foundry Project (connected to AI Services)
+
+2. **Get AI Services credentials:**
+   - Navigate to Azure AI Services resource in Azure Portal
+   - Go to "Keys and Endpoint" section
+   - Copy endpoint URL (format: `https://<name>.services.ai.azure.com/`)
+   - Copy Key 1 or Key 2
+
+3. **Create custom analyzer in Azure AI Studio:**
+   - Navigate to [Azure AI Studio](https://ai.azure.com)
+   - Go to your AI Services resource
+   - Create custom analyzer with ID: `audience-survey`
+   - Configure fields as documented in ANALYZER_SCHEMA.md
+
+4. **(Optional) Connect AI Services to AI Foundry Project:**
+   - This step is optional for basic Content Understanding usage
+   - Enables advanced AI workflows within the Foundry Project
+   - See deployment instructions in `iac/outputs.tf` for details
 
 ## Error Handling
 
@@ -284,12 +306,46 @@ result.contents[0].fields.{FieldName}.value{String|Integer}
 - Check if field names match schema exactly
 - Verify analyzer is trained on similar survey formats
 
+## Azure AI Foundry Project Integration
+
+### What is Azure AI Foundry?
+
+Azure AI Foundry is a unified platform for building, deploying, and managing AI applications. It provides:
+
+- **Project-based collaboration**: Organize AI resources and workflows
+- **Model catalog**: Access to Azure OpenAI, open-source models, and custom models
+- **Connections**: Secure integration with Azure services (AI Services, Storage, Search, etc.)
+- **Evaluation & monitoring**: Built-in tools for testing and observability
+
+### Why Connect AI Services to AI Foundry Project?
+
+While the application uses the AI Services endpoint directly for Content Understanding, connecting it to an AI Foundry Project enables:
+
+1. **Unified management**: All AI resources in one place
+2. **Advanced workflows**: Integrate Content Understanding with other AI services
+3. **Agent development**: Use Foundry Agent Service with extracted survey data
+4. **Model fine-tuning**: Train custom models on survey responses
+5. **Enterprise features**: RBAC, private endpoints, compliance controls
+
+### Architecture Pattern
+
+```
+Application → Azure AI Services (Content Understanding)
+                     ↓
+              AI Foundry Project (optional connection)
+                     ↓
+              Advanced AI Workflows (Agents, Models, Evaluation)
+```
+
+The connection is **optional** for basic Content Understanding usage but **recommended** for production deployments with multiple AI services.
+
 ## References
 
 - [Azure AI Content Understanding Documentation](https://learn.microsoft.com/azure/ai-services/content-understanding/)
+- [Azure AI Foundry Documentation](https://learn.microsoft.com/azure/ai-foundry/)
 - [Python Sample Implementation](docs/pythoncall.py)
 - [Analyzer Field Schema](docs/cu-task-5068_prebuilt-documentAnalyzer_2025-05-01-preview.json)
 
 ---
 
-**Last Updated**: November 1, 2025
+**Last Updated**: November 2, 2025
