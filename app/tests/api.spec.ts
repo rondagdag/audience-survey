@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'test';
+
 test.describe('API - Sessions Endpoint', () => {
   test('GET /api/sessions should return sessions list', async ({ request }) => {
     const response = await request.get('/api/sessions');
@@ -15,7 +17,7 @@ test.describe('API - Sessions Endpoint', () => {
     const response = await request.post('/api/sessions', {
       data: {
         name: 'API Test Session',
-        adminSecret: 'demo-secret-123',
+        adminSecret: ADMIN_SECRET,
       },
     });
     
@@ -45,7 +47,7 @@ test.describe('API - Sessions Endpoint', () => {
     const response = await request.post('/api/sessions', {
       data: {
         name: '',
-        adminSecret: 'demo-secret-123',
+        adminSecret: ADMIN_SECRET,
       },
     });
     
@@ -60,7 +62,7 @@ test.describe('API - Sessions Endpoint', () => {
     const createResponse = await request.post('/api/sessions', {
       data: {
         name: 'Session to Close',
-        adminSecret: 'demo-secret-123',
+        adminSecret: ADMIN_SECRET,
       },
     });
     const createData = await createResponse.json();
@@ -70,7 +72,7 @@ test.describe('API - Sessions Endpoint', () => {
     const closeResponse = await request.patch('/api/sessions', {
       data: {
         sessionId,
-        adminSecret: 'demo-secret-123',
+        adminSecret: ADMIN_SECRET,
       },
     });
     
@@ -108,7 +110,7 @@ test.describe('API - Analyze Endpoint', () => {
     await request.post('/api/sessions', {
       data: {
         name: 'Analyze Test Session',
-        adminSecret: 'demo-secret-123',
+        adminSecret: ADMIN_SECRET,
       },
     });
     
@@ -135,7 +137,7 @@ test.describe('API - Analyze Endpoint', () => {
     await request.post('/api/sessions', {
       data: {
         name: 'Azure Test Session',
-        adminSecret: 'demo-secret-123',
+        adminSecret: ADMIN_SECRET,
       },
     });
     
@@ -181,7 +183,7 @@ test.describe('API - Summary Endpoint', () => {
     const createResponse = await request.post('/api/sessions', {
       data: {
         name: 'Summary Test Session',
-        adminSecret: 'demo-secret-123',
+        adminSecret: ADMIN_SECRET,
       },
     });
     const createData = await createResponse.json();
@@ -210,7 +212,7 @@ test.describe('API - Export Endpoint', () => {
   });
 
   test('GET /api/export should require sessionId', async ({ request }) => {
-    const response = await request.get('/api/export?adminSecret=demo-secret-123');
+    const response = await request.get(`/api/export?adminSecret=${ADMIN_SECRET}`);
     
     expect(response.status()).toBe(400);
   });
@@ -220,14 +222,14 @@ test.describe('API - Export Endpoint', () => {
     const createResponse = await request.post('/api/sessions', {
       data: {
         name: 'Export Test Session',
-        adminSecret: 'demo-secret-123',
+        adminSecret: ADMIN_SECRET,
       },
     });
     const createData = await createResponse.json();
     const sessionId = createData.session.id;
     
     // Export CSV
-    const exportResponse = await request.get(`/api/export?sessionId=${sessionId}&adminSecret=demo-secret-123`);
+    const exportResponse = await request.get(`/api/export?sessionId=${sessionId}&adminSecret=${ADMIN_SECRET}`);
     
     expect(exportResponse.ok()).toBeTruthy();
     expect(exportResponse.headers()['content-type']).toContain('text/csv');

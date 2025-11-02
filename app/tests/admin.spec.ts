@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'test';
+
 test.describe('Admin Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/admin');
@@ -12,7 +14,7 @@ test.describe('Admin Dashboard', () => {
   });
 
   test('should authenticate with correct admin secret', async ({ page }) => {
-    await page.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+    await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
     
     // Should see speaker dashboard after login
@@ -27,7 +29,7 @@ test.describe('Admin Dashboard', () => {
 
   test('should create a new session', async ({ page }) => {
     // Login first
-    await page.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+    await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
     
     // Wait for dashboard to load
@@ -56,7 +58,7 @@ test.describe('Admin Dashboard', () => {
 
   test('should close active session', async ({ page }) => {
     // Login
-    await page.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+    await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
     
     // Close any existing active session first
@@ -88,7 +90,7 @@ test.describe('Admin Dashboard', () => {
 
   test('should display session summary with metrics', async ({ page }) => {
     // Login
-    await page.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+    await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
     
     // Wait for dashboard to load
@@ -113,7 +115,7 @@ test.describe('Admin Dashboard', () => {
 
   test('should navigate to audience view', async ({ page }) => {
     // Login
-    await page.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+    await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
     
     // Wait for dashboard to load
@@ -135,7 +137,7 @@ test.describe('Admin Dashboard - Session History', () => {
     await page.goto('/admin');
     
     // Login
-    await page.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+    await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
     
     // Close any existing active session first

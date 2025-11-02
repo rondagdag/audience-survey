@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'test';
+
 test.describe('Audience View - No Active Session', () => {
   test('should show "no active session" message when no session exists', async ({ page }) => {
     await page.goto('/');
@@ -21,7 +23,7 @@ test.describe('Audience View - With Active Session', () => {
     // Create a session via admin panel
     const adminPage = await context.newPage();
     await adminPage.goto('/admin');
-    await adminPage.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+    await adminPage.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await adminPage.getByRole('button', { name: /login/i }).click();
     
     // Close any existing active session first
@@ -98,7 +100,7 @@ test.describe('Audience View - File Upload Flow', () => {
     // Create active session
     const adminPage = await context.newPage();
     await adminPage.goto('/admin');
-    await adminPage.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+    await adminPage.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await adminPage.getByRole('button', { name: /login/i }).click();
     
     // Close any existing active session first
@@ -190,7 +192,7 @@ test.describe('Audience View - Mobile Responsiveness', () => {
     // Create session
     const adminPage = await context.newPage();
     await adminPage.goto('/admin');
-    await adminPage.getByPlaceholder('Admin Secret').fill('demo-secret-123');
+    await adminPage.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await adminPage.getByRole('button', { name: /login/i }).click();
     
     // Close any existing active session first

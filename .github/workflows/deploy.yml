@@ -91,7 +91,10 @@ jobs:
       - name: Azure CLI - Login to ACR
         run: az acr login --name ${{ needs.infra.outputs.acr_login_server%%.* }}
 
-      - name: Build and push image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image for AMD64
         working-directory: app
         env:
           ACR: ${{ needs.infra.outputs.acr_login_server }}
@@ -99,15 +102,47 @@ jobs:
           TAG: ${{ github.sha }}
         run: |
           IMAGE="$ACR/$PROJECT/web:$TAG"
-          echo "Building $IMAGE"
-          docker build -t "$IMAGE" .
-          docker push "$IMAGE"
+          IMAGE_LATEST="$ACR/$PROJECT/web:latest"
+          echo "Building $IMAGE for linux/amd64"
+          docker buildx build --platform linux/amd64 -t "$IMAGE" -t "$IMAGE_LATEST" --push .
 
-      - name: Update image tag via Terraform
-        working-directory: iac
+      - name: Get secrets from Key Vault
+        id: get_secrets
         run: |
-          terraform init -upgrade
-          terraform apply -auto-approve -var="container_image_tag=${{ github.sha }}"
+          AZURE_CONTENT_ENDPOINT=$(az keyvault secret show --vault-name audsurvey-kv-l56h90 --name azure-content-endpoint --query value -o tsv)
+          AZURE_CONTENT_KEY=$(az keyvault secret show --vault-name audsurvey-kv-l56h90 --name azure-content-key --query value -o tsv)
+          ADMIN_SECRET=$(az keyvault secret show --vault-name audsurvey-kv-l56h90 --name admin-secret --query value -o tsv)
+          echo "::add-mask::$AZURE_CONTENT_KEY"
+          echo "::add-mask::$ADMIN_SECRET"
+          echo "azure_content_endpoint=$AZURE_CONTENT_ENDPOINT" >> $GITHUB_OUTPUT
+          echo "azure_content_key=$AZURE_CONTENT_KEY" >> $GITHUB_OUTPUT
+          echo "admin_secret=$ADMIN_SECRET" >> $GITHUB_OUTPUT
+
+      - name: Update Container App with new image
+        env:
+          ACR: ${{ needs.infra.outputs.acr_login_server }}
+          PROJECT: ${{ needs.infra.outputs.project_name }}
+          TAG: ${{ github.sha }}
+        run: |
+          IMAGE="$ACR/$PROJECT/web:$TAG"
+          
+          # Update the container image
+          az containerapp update \
+            --name audsurvey-app-l56h90 \
+            --resource-group rg-audience-survey \
+            --image "$IMAGE" \
+            --secrets \
+              azure-content-endpoint="${{ steps.get_secrets.outputs.azure_content_endpoint }}" \
+              azure-content-key="${{ steps.get_secrets.outputs.azure_content_key }}" \
+              admin-secret="${{ steps.get_secrets.outputs.admin_secret }}" \
+            --set-env-vars \
+              AZURE_CONTENT_ENDPOINT=secretref:azure-content-endpoint \
+              AZURE_CONTENT_KEY=secretref:azure-content-key \
+              AZURE_ANALYZER_ID=audience-survey \
+              AZURE_STORAGE_ACCOUNT_NAME=audsurveyl56h90 \
+              AZURE_STORAGE_CONTAINER_NAME=uploads \
+              ADMIN_SECRET=secretref:admin-secret \
+              PORT=3000
 
   e2e_tests:
     name: Run Playwright tests against deployed app
@@ -115,6 +150,20 @@ jobs:
     needs: [infra, build_and_deploy]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get admin secret from Key Vault
+        id: admin_secret
+        run: |
+          ADMIN_SECRET=$(az keyvault secret show --vault-name audsurvey-kv-l56h90 --name admin-secret --query value -o tsv)
+          echo "::add-mask::$ADMIN_SECRET"
+          echo "admin_secret=$ADMIN_SECRET" >> $GITHUB_OUTPUT
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -131,11 +180,16 @@ jobs:
         working-directory: app
         run: npx playwright install --with-deps
 
+      - name: Wait for Container App to be ready
+        run: |
+          echo "Waiting 30 seconds for Container App to stabilize after update..."
+          sleep 30
+
       - name: Run tests
         working-directory: app
         env:
           E2E_BASE_URL: ${{ needs.infra.outputs.container_app_url }}
-          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          ADMIN_SECRET: ${{ steps.admin_secret.outputs.admin_secret }}
         run: npm run test:e2e
 
       - name: Upload Playwright report
