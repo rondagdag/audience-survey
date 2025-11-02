@@ -53,6 +53,37 @@ variable "app_service_sku" {
   }
 }
 
+# Container App parameters
+variable "container_cpu" {
+  description = "vCPU for the container"
+  type        = number
+  default     = 0.5
+}
+
+variable "container_memory" {
+  description = "Memory for the container (Gi)"
+  type        = string
+  default     = "1Gi"
+}
+
+variable "container_min_replicas" {
+  description = "Minimum number of replicas"
+  type        = number
+  default     = 1
+}
+
+variable "container_max_replicas" {
+  description = "Maximum number of replicas"
+  type        = number
+  default     = 2
+}
+
+variable "container_image_tag" {
+  description = "Image tag to deploy (e.g., sha or semver)"
+  type        = string
+  default     = "latest"
+}
+
 variable "analyzer_id" {
   description = "Azure AI Content Understanding custom analyzer ID"
   type        = string

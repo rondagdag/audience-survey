@@ -2,6 +2,11 @@
 
 This directory contains Terraform configuration for deploying the Audience Survey application infrastructure to Azure.
 
+# Audience Survey Infrastructure as Code
+
+> Note: This project now deploys to Azure Container Apps with Azure Container Registry via Terraform and GitHub Actions. Previous App Service references below are legacy and will be gradually updated. See the new GitHub workflow at `.github/workflows/deploy.yml` and the Terraform outputs `container_app_url` and `acr_login_server`.
+
+
 ## 📋 Prerequisites
 
 1. **Azure CLI** - [Install Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
@@ -32,14 +37,38 @@ The Terraform configuration provisions the following Azure resources:
   - Storage connection string
   - AI Services API key and endpoint
   - Generated admin secret
-- **App Service Plan** - Linux-based hosting (B1 SKU default)
-- **App Service** - Next.js web application
-  - Node.js 20 LTS runtime
-  - Managed identity enabled
-  - Integrated with Key Vault for secrets
-  - HTTP logs and diagnostics enabled
+ **Azure Container Registry (ACR)** - Private container image registry
+ **Azure Container Apps Environment** - Hosting environment for ACA
+ **Azure Container App** - Next.js container with managed identity, Key Vault secret references, and HTTP ingress on port 3000
+
 
 ## 🚀 Quick Start
+### Container Apps (recommended)
+
+Using GitHub Actions (see `.github/workflows/deploy.yml`):
+
+1. Configure repository secrets: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, and `ADMIN_SECRET`.
+2. Push to `main` or run the workflow manually. The pipeline will:
+  - Provision infra with Terraform (RG, Storage, Key Vault, AI Services, ACR, ACA)
+  - Build and push the Docker image to ACR tagged with the commit SHA
+  - Update the Container App to the new image
+  - Run Playwright tests against the deployed URL
+
+Manual steps (optional):
+
+```bash
+# Build and push image (requires az login and ACR permissions)
+ACR=$(terraform output -raw acr_login_server)
+PROJECT=audsurvey
+TAG=$(git rev-parse --short HEAD)
+
+docker build -t "$ACR/$PROJECT/web:$TAG" ./app
+az acr login --name ${ACR%%.*}
+docker push "$ACR/$PROJECT/web:$TAG"
+
+# Update image tag via Terraform
+terraform apply -var="container_image_tag=$TAG" -auto-approve
+```
 
 ### 1. Configure Variables
 
@@ -215,24 +244,19 @@ Azure AI Content Understanding is available in:
 
 ## 📊 Monitoring
 
-### View Application Logs
+### View Application Logs (Container Apps)
 
 ```bash
 RG_NAME=$(terraform output -raw resource_group_name)
-APP_NAME=$(terraform output -raw app_service_name)
+APP_NAME=$(terraform output -raw container_app_name)
 
-# Stream live logs
-az webapp log tail --resource-group $RG_NAME --name $APP_NAME
-
-# Download logs
-az webapp log download --resource-group $RG_NAME --name $APP_NAME
+az containerapp logs show --resource-group $RG_NAME --name $APP_NAME --follow true
 ```
 
-### Access Metrics
+### Access Application URL
 
 ```bash
-# View metrics in Azure Portal
-az webapp browse --resource-group $RG_NAME --name $APP_NAME
+terraform output container_app_url
 ```
 
 ## 🧹 Cleanup

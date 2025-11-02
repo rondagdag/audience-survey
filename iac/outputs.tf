@@ -46,24 +46,34 @@ output "admin_secret" {
   sensitive   = true
 }
 
-output "app_service_name" {
-  description = "Name of the App Service"
-  value       = azurerm_linux_web_app.main.name
+output "container_app_name" {
+  description = "Name of the Container App"
+  value       = azurerm_container_app.web.name
 }
 
-output "app_service_default_hostname" {
-  description = "Default hostname of the App Service"
-  value       = azurerm_linux_web_app.main.default_hostname
+output "container_app_fqdn" {
+  description = "FQDN of the Container App"
+  value       = azurerm_container_app.web.latest_revision_fqdn
 }
 
-output "app_service_url" {
-  description = "Full URL of the deployed application"
-  value       = "https://${azurerm_linux_web_app.main.default_hostname}"
+output "container_app_url" {
+  description = "Full URL of the deployed Container App"
+  value       = "https://${azurerm_container_app.web.latest_revision_fqdn}"
 }
 
-output "app_service_identity_principal_id" {
-  description = "Principal ID of the App Service managed identity"
-  value       = azurerm_linux_web_app.main.identity[0].principal_id
+output "container_app_identity_principal_id" {
+  description = "Principal ID of the Container App managed identity"
+  value       = azurerm_container_app.web.identity[0].principal_id
+}
+
+output "acr_login_server" {
+  description = "Login server for ACR"
+  value       = azurerm_container_registry.main.login_server
+}
+
+output "acr_name" {
+  description = "Name of the ACR"
+  value       = azurerm_container_registry.main.name
 }
 
 output "deployment_instructions" {
@@ -84,16 +94,14 @@ output "deployment_instructions" {
        AZURE_STORAGE_CONTAINER_NAME="${azurerm_storage_container.uploads.name}"
        ADMIN_SECRET="<from Key Vault>"
     
-    3. Build your Next.js application:
-       npm run build
-    
-    4. Deploy to App Service using Azure CLI:
-       az webapp deployment source config-zip \
-         --resource-group ${azurerm_resource_group.main.name} \
-         --name ${azurerm_linux_web_app.main.name} \
-         --src ./.next/standalone.zip
-       
-       Or use Azure Static Web Apps deployment with staticwebapp.config.json
+     3. Build and push container image (example):
+       docker login ${azurerm_container_registry.main.login_server}
+       docker build -t ${azurerm_container_registry.main.login_server}/${var.project_name}/web:${var.container_image_tag} ./app
+       docker push ${azurerm_container_registry.main.login_server}/${var.project_name}/web:${var.container_image_tag}
+
+     4. Update Container App to new image via Terraform:
+       - Set variable container_image_tag to your new tag
+       - Run terraform apply
     
     5. Create AI Services connection in AI Foundry Project (optional, for advanced scenarios):
        - Navigate to Azure AI Foundry portal (https://ai.azure.com)
@@ -108,15 +116,15 @@ output "deployment_instructions" {
        - Create custom analyzer with ID: ${var.analyzer_id}
        - Configure fields as documented in ANALYZER_SCHEMA.md
     
-    7. Access your application:
-       https://${azurerm_linux_web_app.main.default_hostname}
+     7. Access your application:
+       https://${azurerm_container_app.web.latest_revision_fqdn}
     
-    8. Admin panel access:
-       https://${azurerm_linux_web_app.main.default_hostname}/admin
+     8. Admin panel access:
+       https://${azurerm_container_app.web.latest_revision_fqdn}/admin
        (Use admin secret from Key Vault)
     
-    9. Monitor application logs:
-       az webapp log tail --resource-group ${azurerm_resource_group.main.name} --name ${azurerm_linux_web_app.main.name}
+     9. Monitor application logs:
+       az containerapp logs show --resource-group ${azurerm_resource_group.main.name} --name ${azurerm_container_app.web.name}
   EOT
 }
 
