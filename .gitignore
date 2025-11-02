@@ -51,3 +51,20 @@ next-env.d.ts
 # data uploads
 /data/
 /app/data/
+
+# Terraform files (sensitive)
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+*.tfplan
+.terraform/
+.terraform.lock.hcl
+
+# Generated files (Terraform output)
+*-generated.yml
+*-generated.yaml
+
+# Playwright reports
+/playwright-report/
+/app/playwright-report/
