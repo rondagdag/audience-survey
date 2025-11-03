@@ -67,6 +67,14 @@ jobs:
         run: |
           terraform init -upgrade
           terraform validate
+          # If the resource group already exists in Azure but not in state, import it to avoid conflicts
+          if az group exists --name rg-audience-survey; then
+            echo "Resource group rg-audience-survey exists in Azure. Ensuring it's in Terraform state..."
+            if ! terraform state show azurerm_resource_group.main >/dev/null 2>&1; then
+              terraform import azurerm_resource_group.main \
+                "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-audience-survey" || true
+            fi
+          fi
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
 
