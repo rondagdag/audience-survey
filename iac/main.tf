@@ -245,6 +245,18 @@ resource "azurerm_key_vault_access_policy" "hub" {
   ]
 }
 
+# Grant GitHub Actions service principal access to Key Vault
+resource "azurerm_key_vault_access_policy" "github_actions" {
+  key_vault_id = azurerm_key_vault.main.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = "cf511bf2-0e5f-48b7-8059-9b6cbdd8c8c4" # gh-audsurvey-deploy
+  
+  secret_permissions = [
+    "Get",
+    "List"
+  ]
+}
+
 # Note: Azure AI Foundry Hub and Project automatically create role assignments
 # for Storage Account access with specific conditions. These are managed by Azure.
 
