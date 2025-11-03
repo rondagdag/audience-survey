@@ -67,22 +67,18 @@ jobs:
         run: |
           IMAGE="$ACR_LOGIN_SERVER/$PROJECT_NAME/web:${{ github.sha }}"
           
-          # Update the container image
+          # Update the container image and secrets
           az containerapp update \
             --name $CONTAINER_APP_NAME \
             --resource-group $RESOURCE_GROUP_NAME \
             --image "$IMAGE" \
-            --secrets \
-              azure-content-endpoint="${{ steps.get_secrets.outputs.azure_content_endpoint }}" \
-              azure-content-key="${{ steps.get_secrets.outputs.azure_content_key }}" \
-              admin-secret="${{ steps.get_secrets.outputs.admin_secret }}" \
             --set-env-vars \
-              AZURE_CONTENT_ENDPOINT=secretref:azure-content-endpoint \
-              AZURE_CONTENT_KEY=secretref:azure-content-key \
+              AZURE_CONTENT_ENDPOINT="${{ steps.get_secrets.outputs.azure_content_endpoint }}" \
+              AZURE_CONTENT_KEY="${{ steps.get_secrets.outputs.azure_content_key }}" \
               AZURE_ANALYZER_ID=audience-survey \
               AZURE_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME \
               AZURE_STORAGE_CONTAINER_NAME=uploads \
-              ADMIN_SECRET=secretref:admin-secret \
+              ADMIN_SECRET="${{ steps.get_secrets.outputs.admin_secret }}" \
               PORT=3000
 
   e2e_tests:
