@@ -6,12 +6,32 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    env:
+      KEY_VAULT_NAME: audsurvey-kv-l56h90
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      - name: Get admin secret from Key Vault
+        id: admin_secret
+        run: |
+          ADMIN_SECRET=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name admin-secret --query value -o tsv)
+          echo "::add-mask::$ADMIN_SECRET"
+          echo "admin_secret=$ADMIN_SECRET" >> $GITHUB_OUTPUT
       
       - uses: actions/setup-node@v4
         with:
@@ -26,14 +46,14 @@ jobs:
       - name: Create .env.local
         run: |
           cd app
-          echo "ADMIN_SECRET=test" >> .env.local
+          echo "ADMIN_SECRET=${{ steps.admin_secret.outputs.admin_secret }}" >> .env.local
           echo "AZURE_CONTENT_ENDPOINT=placeholder" >> .env.local
           echo "AZURE_CONTENT_KEY=placeholder" >> .env.local
         
       - name: Run Playwright tests
         run: cd app && npm run test:e2e
         env:
-          ADMIN_SECRET: test
+          ADMIN_SECRET: ${{ steps.admin_secret.outputs.admin_secret }}
         
       - uses: actions/upload-artifact@v4
         if: always()
