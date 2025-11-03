@@ -21,28 +21,37 @@ A Next.js application for collecting and analyzing audience feedback during spea
 
 ## 📋 Prerequisites
 
-- Node.js 18+ and npm
-- Azure subscription with AI Content Understanding resource
-- (Optional) Vercel account for deployment
+- **Node.js 20+** and npm
+- **Azure Subscription** with permissions to create resources
+- **Azure CLI** - [Install here](https://learn.microsoft.com/cli/azure/install-azure-cli)
+- **(Optional) Terraform** - For infrastructure automation - [Install here](https://www.terraform.io/downloads)
+- **(Optional) Docker** - For containerized deployment
 
-## � Project Structure
+## 📂 Project Structure
 
 ```
 audience-survey/
-├── app/                  # Next.js application
+├── app/                  # Next.js 16 application
 │   ├── src/              # Source code
 │   │   ├── app/          # App Router pages and API routes
 │   │   ├── components/   # React components
 │   │   └── lib/          # Utilities and business logic
 │   ├── tests/            # Playwright E2E tests
 │   ├── public/           # Static assets
+│   ├── Dockerfile        # Container configuration
 │   └── ...               # Config files (package.json, tsconfig.json, etc.)
 ├── iac/                  # Infrastructure as Code (Terraform)
+│   ├── main.tf           # Main Terraform configuration
+│   ├── variables.tf      # Variable definitions
+│   ├── outputs.tf        # Output values
+│   └── README.md         # Detailed IaC documentation
 ├── setup/                # Setup scripts
+│   └── create-analyzer.sh # Custom analyzer creation script
 ├── docs/                 # Documentation
 │   ├── QUICKSTART.md     # Quick setup guide
 │   ├── AZURE_INTEGRATION.md  # Azure setup details
 │   ├── ANALYZER_SCHEMA.md    # Custom analyzer schema
+│   ├── BLOB_STORAGE.md   # Storage implementation details
 │   ├── TESTING.md        # Testing guide
 │   └── ...               # Additional documentation
 └── README.md             # This file
@@ -200,9 +209,81 @@ The application expects surveys with these fields:
 - HTTPS required for production deployment
 - Sensitive data stored in environment variables
 
-## 📦 Deployment
+## 📦 Cloud Deployment
 
-### Deploy to Vercel:
+### Option 1: Azure Container Apps with GitHub Actions (Recommended)
+
+The project includes a complete CI/CD pipeline for Azure Container Apps:
+
+**Setup:**
+
+1. **Provision infrastructure with Terraform:**
+   ```bash
+   cd iac
+   terraform init
+   terraform apply
+   ```
+
+2. **Configure GitHub repository secrets:**
+   - `AZURE_CLIENT_ID` - Service principal client ID
+   - `AZURE_TENANT_ID` - Azure tenant ID
+   - `AZURE_SUBSCRIPTION_ID` - Your subscription ID
+   - `ADMIN_SECRET` - Admin secret for the application
+
+3. **Push to main branch or manually trigger workflow:**
+   ```bash
+   git push origin main
+   ```
+
+The GitHub Actions workflow (`.github/workflows/deploy.yml`) will:
+- Provision infrastructure (if not exists)
+- Build Docker image with commit SHA tag
+- Push to Azure Container Registry
+- Deploy to Azure Container Apps
+- Run Playwright E2E tests against deployed URL
+
+**Access deployed app:**
+```bash
+cd iac
+terraform output container_app_url
+```
+
+See [iac/README.md](iac/README.md) for detailed infrastructure documentation.
+
+### Option 2: Azure Container Apps (Manual)
+
+**Build and push Docker image:**
+
+```bash
+cd app
+
+# Login to Azure
+az login
+
+# Get ACR name from Terraform outputs
+cd ../iac
+ACR=$(terraform output -raw acr_login_server)
+cd ../app
+
+# Build and push
+PROJECT=audsurvey
+TAG=$(git rev-parse --short HEAD)
+docker build -t "$ACR/$PROJECT/web:$TAG" .
+
+az acr login --name ${ACR%%.*}
+docker push "$ACR/$PROJECT/web:$TAG"
+```
+
+**Update Container App:**
+
+```bash
+cd ../iac
+terraform apply -var="container_image_tag=$TAG" -auto-approve
+```
+
+### Option 3: Vercel
+
+**Quick deploy:**
 
 ```bash
 cd app
@@ -210,30 +291,105 @@ npm install -g vercel
 vercel
 ```
 
-Add environment variables in Vercel dashboard:
-- `AZURE_CONTENT_ENDPOINT`
-- `AZURE_CONTENT_KEY`
-- `AZURE_ANALYZER_ID`
-- `ADMIN_SECRET`
+**Configure environment variables in Vercel dashboard:**
+- `AZURE_CONTENT_ENDPOINT` - Your AI Services endpoint
+- `AZURE_CONTENT_KEY` - AI Services API key
+- `AZURE_ANALYZER_ID` - Custom analyzer ID (`audience-survey`)
+- `AZURE_STORAGE_CONNECTION_STRING` - Storage connection string
+- `AZURE_STORAGE_CONTAINER_NAME` - Container name (`uploads`)
+- `ADMIN_SECRET` - Admin authentication secret
 
-### Deploy to Azure Static Web Apps:
+**Or use Vercel CLI with env vars:**
+
+```bash
+vercel --env AZURE_CONTENT_ENDPOINT=https://... \
+       --env AZURE_CONTENT_KEY=your-key \
+       --env AZURE_ANALYZER_ID=audience-survey \
+       --env AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https... \
+       --env ADMIN_SECRET=your-secret
+```
+
+### Option 4: Azure Static Web Apps
+
+**Deploy with SWA CLI:**
 
 ```bash
 cd app
 
-# Install Azure Static Web Apps CLI
+# Install SWA CLI
 npm install -g @azure/static-web-apps-cli
 
-# Build
+# Build the application
 npm run build
 
-# Deploy (follow prompts)
+# Deploy (follow prompts for authentication)
 swa deploy
 ```
 
-For infrastructure deployment, see [iac/README.md](iac/README.md).
+**Configure environment variables in Azure Portal:**
+- Navigate to Static Web App → Configuration
+- Add the same environment variables as Vercel
 
-## 🛠️ Development
+**Note:** The `staticwebapp.config.json` is pre-configured for Next.js routing.
+
+### Environment Variables Required for All Deployments
+
+All cloud deployments require these environment variables:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `AZURE_CONTENT_ENDPOINT` | AI Services endpoint | `https://name.services.ai.azure.com/` |
+| `AZURE_CONTENT_KEY` | AI Services API key | `abc123...` |
+| `AZURE_ANALYZER_ID` | Custom analyzer ID | `audience-survey` |
+| `AZURE_STORAGE_CONNECTION_STRING` | Storage connection (local/dev) | `DefaultEndpointsProtocol=https;...` |
+| `AZURE_STORAGE_ACCOUNT_NAME` | Storage account (managed identity) | `storageaccountname` |
+| `AZURE_STORAGE_CONTAINER_NAME` | Blob container name | `uploads` |
+| `ADMIN_SECRET` | Admin authentication secret | Strong random string |
+
+**Note:** Use `AZURE_STORAGE_CONNECTION_STRING` for Vercel/SWA. Container Apps uses managed identity with `AZURE_STORAGE_ACCOUNT_NAME`.
+
+### Post-Deployment Verification
+
+1. **Test the deployed application:**
+   ```bash
+   # Visit your deployment URL
+   curl https://your-app-url.azurecontainerapps.io
+   ```
+
+2. **Create a test session:**
+   - Navigate to `/admin`
+   - Login with your `ADMIN_SECRET`
+   - Create a test session
+
+3. **Upload a test survey:**
+   - Visit the main page
+   - Upload a sample survey image
+   - Verify Azure AI Content Understanding extracts data correctly
+
+4. **Check logs:**
+   ```bash
+   # Container Apps
+   az containerapp logs show \
+     --resource-group <rg-name> \
+     --name <app-name> \
+     --follow
+   
+   # Vercel
+   vercel logs <deployment-url>
+   ```
+
+### Cleanup Resources
+
+**To delete all Azure resources and stop charges:**
+
+```bash
+cd iac
+terraform destroy
+```
+
+⚠️ **Warning:** This permanently deletes all resources including uploaded images and secrets.
+
+## 🛠️ Development Guide
 
 ### Application Architecture
 
@@ -255,74 +411,48 @@ app/
 │       ├── types.ts      # TypeScript definitions
 │       ├── store.ts      # Zustand state management
 │       ├── data-store.ts # In-memory data storage
-│       ├── azure-content-understanding.ts  # Azure integration
+│       ├── blob-storage.ts # Azure Blob Storage integration
+│       ├── azure-content-understanding.ts  # Azure AI integration
 │       └── survey-mapper.ts  # AI result mapping
 ├── tests/                # Playwright E2E tests
 ├── public/               # Static assets
+├── Dockerfile            # Container configuration
 └── ...                   # Config files
 ```
-
-### Testing
-
-### Available Commands
-
-From the `app/` directory:
-
-```bash
-npm run dev       # Start dev server with Turbopack
-npm run build     # Production build
-npm run start     # Start production server
-npm run lint      # Run ESLint
-```
-
-### Testing
-
-Run end-to-end tests with Playwright:
-
-```bash
-cd app
-
-# Run all tests (headless)
-npm run test:e2e
-
-# Run tests in UI mode (recommended for development)
-npm run test:ui
-
-# Run tests in headed mode (watch browser)
-npm run test:headed
-
-# View HTML test report
-npm run test:report
-```
-
-Test suites:
-- **admin.spec.ts**: Admin authentication, session management
-- **audience.spec.ts**: Upload flow, mobile responsiveness
-- **api.spec.ts**: API endpoints, validation, error handling
-
-Tests automatically start the dev server if not running. For details, see [TESTING.md](docs/TESTING.md).
 
 ### Adding Features
 
 The codebase is structured for easy extension:
 
-- Add new survey fields in `src/lib/types.ts`
-- Extend mapping logic in `src/lib/survey-mapper.ts`
-- Create new visualizations in `src/components/`
-- Add API endpoints in `src/app/api/`
+1. **Add new survey fields:**
+   - Update `src/lib/types.ts` with new field definitions
+   - Extend `src/lib/survey-mapper.ts` to extract from Azure response
+   - Update `src/lib/data-store.ts` aggregation logic
+   - Create visualization components in `src/components/`
+
+2. **Add new API endpoints:**
+   - Create route in `src/app/api/`
+   - Follow existing patterns for admin authentication
+   - Use `export const dynamic = 'force-dynamic'` for real-time data
+
+3. **Add new visualizations:**
+   - Create component in `src/components/`
+   - Use Recharts for charts, Tailwind for styling
+   - Import directly (no barrel exports): `import X from '@/components/X'`
 
 ### Data Storage
 
-Currently uses in-memory storage (resets on server restart). Uploaded images are saved to `data/uploads/` directory with timestamps and preserved for reference.
+**Current Implementation:**
+- **Session data**: In-memory Maps in `DataStore` singleton (resets on restart)
+- **Image files**: Azure Blob Storage with unique blob names
+- **Image references**: Blob URLs stored in `SurveyResult.imagePath`
 
-For production:
+**For Production:**
+- Replace `app/src/lib/data-store.ts` with database (MongoDB, PostgreSQL, Cosmos DB)
+- Keep same interface for minimal API route changes
+- Images already in cloud storage (Azure Blob Storage)
 
-1. Replace `app/src/lib/data-store.ts` with database integration (MongoDB, PostgreSQL, etc.)
-2. Update API routes to use the new data layer
-3. Maintain the same interface for minimal code changes
-4. Consider cloud storage (Azure Blob Storage, AWS S3) for uploaded images
-
-See [BLOB_STORAGE.md](docs/BLOB_STORAGE.md) for storage implementation details.
+See [docs/BLOB_STORAGE.md](docs/BLOB_STORAGE.md) for storage implementation details.
 
 ## 🤝 Contributing
 
@@ -365,24 +495,177 @@ For issues and questions:
 
 ## 🔧 Troubleshooting
 
-### "Couldn't read survey" error:
-- Ensure good lighting when taking photo
-- Keep survey flat and in focus
-- Make sure text is clearly visible
-- Try taking photo from directly above
+### Local Development Issues
 
-### Azure API errors:
+**Port already in use (Error: listen EADDRINUSE :::3000)**
+```bash
+# Find and kill process on port 3000
+lsof -ti:3000 | xargs kill -9
+
+# Or use a different port
+npm run dev -- -p 3001
+```
+
+**Environment variables not updating**
+- Restart development server after changing `.env.local`
+- Verify file is named `.env.local` not `.env.local.txt`
+- Check file is in `app/` directory, not project root
+
+**"Module not found" errors**
+```bash
+# Clear Next.js cache and reinstall
+rm -rf .next node_modules
+npm install
+npm run dev
+```
+
+### Azure Configuration Issues
+
+**"Couldn't read survey" / Image analysis errors:**
+- **Image quality**: Ensure good lighting, keep survey flat and in focus
+- **Custom analyzer**: Verify analyzer ID is `audience-survey` in `.env.local`
+- **Analyzer not deployed**: Check Azure AI Studio for analyzer status
+- **Field mismatch**: Ensure analyzer schema matches [docs/ANALYZER_SCHEMA.md](docs/ANALYZER_SCHEMA.md)
+
+**Azure API authentication errors (401 Unauthorized):**
 - Verify endpoint URL format: `https://<name>.services.ai.azure.com/`
-  - Azure AI Services endpoint (not legacy cognitiveservices.azure.com)
-- Check API key is correct (from AI Services resource)
-- Ensure resource is in supported region (westus, swedencentral, australiaeast)
-- Confirm subscription has available quota
-- If using AI Foundry Project, verify connection to AI Services is active
+  - Must be AI Services endpoint, not legacy `cognitiveservices.azure.com`
+- Check API key is correct (from AI Services → Keys and Endpoint)
+- Ensure key hasn't been regenerated in Azure Portal
+- Try using Key 2 if Key 1 fails
 
-### No active session:
+**Region/availability errors (403 Forbidden):**
+- Ensure resource is in supported region: `westus`, `swedencentral`, or `australiaeast`
+- Verify subscription has available quota for AI Services
+- Check Content Understanding is enabled in your region
+
+**Storage errors ("Failed to upload image to storage"):**
+- Verify `AZURE_STORAGE_CONNECTION_STRING` is correct
+- Check storage account name matches in connection string
+- Ensure `uploads` container exists (auto-created on first upload)
+- For Container Apps: verify managed identity has `Storage Blob Data Contributor` role
+
+### Session Management Issues
+
+**No active session error:**
 - Admin must create a session from `/admin` page
 - Only one session can be active at a time
 - Session must be explicitly closed before creating new one
+- Check browser console for 401 errors (admin secret mismatch)
+
+**Admin login fails:**
+- Verify `ADMIN_SECRET` in `.env.local` matches your input
+- No spaces or special characters causing encoding issues
+- Try regenerating admin secret (update in both `.env.local` and deployment)
+
+**Sessions not appearing in dashboard:**
+- Client polls every 5 seconds - wait or refresh page
+- Check browser Network tab for failed `/api/sessions` requests
+- Verify server is running and accessible
+
+### Deployment Issues
+
+**Container build fails:**
+```bash
+# Test Docker build locally
+cd app
+docker build -t test-build .
+
+# Check for missing dependencies
+npm run build
+```
+
+**Terraform errors:**
+```bash
+# Custom subdomain already exists
+# Solution: Change project_name in terraform.tfvars
+
+# State lock errors
+terraform force-unlock <lock-id>
+
+# Provider version conflicts
+terraform init -upgrade
+```
+
+**GitHub Actions deployment fails:**
+- Verify all repository secrets are set correctly
+- Check Azure service principal has required permissions
+- Review workflow logs for specific error messages
+- Ensure Terraform state is not corrupted
+
+### Testing Issues
+
+**Playwright tests failing:**
+```bash
+# Install browser dependencies
+npx playwright install --with-deps
+
+# Update Playwright
+npm install -D @playwright/test@latest
+
+# Run single test file for debugging
+npm run test:headed -- tests/admin.spec.ts
+```
+
+**Tests timeout or hang:**
+- Ensure dev server is not already running on port 3000
+- Check `.env.local` is properly configured
+- Increase timeout in `playwright.config.ts` if needed
+
+### Performance Issues
+
+**Slow image analysis:**
+- Azure AI Content Understanding typical response: 2-5 seconds
+- Check network latency to Azure region
+- Ensure images are not excessively large (max 10MB)
+- Consider image compression before upload
+
+**Dashboard not updating:**
+- Verify polling intervals in Zustand stores (default 3-5s)
+- Check browser console for JavaScript errors
+- Clear browser cache and reload
+
+### Data Issues
+
+**Uploaded images not persisting:**
+- Images stored in Azure Blob Storage (check Azure Portal)
+- In-memory session data resets on server restart
+- Export CSV before restarting server in development
+
+**CSV export empty or missing data:**
+- Verify session has submitted surveys
+- Check `sessionId` parameter in export URL
+- Ensure `adminSecret` is correct
+
+### Getting Help
+
+If issues persist:
+
+1. **Check logs:**
+   ```bash
+   # Local development
+   Check terminal output
+   
+   # Container Apps
+   az containerapp logs show --name <app-name> --resource-group <rg-name> --follow
+   
+   # Vercel
+   vercel logs
+   ```
+
+2. **Enable debug mode:**
+   Add to `.env.local`:
+   ```env
+   NODE_ENV=development
+   ```
+
+3. **Review documentation:**
+   - [Azure AI Content Understanding Docs](https://learn.microsoft.com/azure/ai-services/content-understanding/)
+   - [Next.js Documentation](https://nextjs.org/docs)
+   - Project docs in `docs/` folder
+
+4. **Open an issue:**
+   Include: error messages, environment (OS, Node version), steps to reproduce
 
 ---
 

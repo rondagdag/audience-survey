@@ -22,6 +22,10 @@ jobs:
       acr_login_server: ${{ steps.tf_outputs.outputs.acr_login_server }}
       container_app_url: ${{ steps.tf_outputs.outputs.container_app_url }}
       project_name: ${{ steps.vars.outputs.project_name }}
+      key_vault_name: ${{ steps.tf_outputs.outputs.key_vault_name }}
+      resource_group_name: ${{ steps.tf_outputs.outputs.resource_group_name }}
+      container_app_name: ${{ steps.tf_outputs.outputs.container_app_name }}
+      storage_account_name: ${{ steps.tf_outputs.outputs.storage_account_name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -68,6 +72,10 @@ jobs:
           JSON=$(terraform output -json)
           echo "$JSON" | jq -r '.acr_login_server.value' | sed 's/\n//g' | xargs -I{} echo "acr_login_server={}" >> $GITHUB_OUTPUT
           echo "$JSON" | jq -r '.container_app_url.value' | sed 's/\n//g' | xargs -I{} echo "container_app_url={}" >> $GITHUB_OUTPUT
+          echo "$JSON" | jq -r '.key_vault_name.value' | sed 's/\n//g' | xargs -I{} echo "key_vault_name={}" >> $GITHUB_OUTPUT
+          echo "$JSON" | jq -r '.resource_group_name.value' | sed 's/\n//g' | xargs -I{} echo "resource_group_name={}" >> $GITHUB_OUTPUT
+          echo "$JSON" | jq -r '.container_app_name.value' | sed 's/\n//g' | xargs -I{} echo "container_app_name={}" >> $GITHUB_OUTPUT
+          echo "$JSON" | jq -r '.storage_account_name.value' | sed 's/\n//g' | xargs -I{} echo "storage_account_name={}" >> $GITHUB_OUTPUT
 
       - name: Export variables
         id: vars
@@ -109,9 +117,9 @@ jobs:
       - name: Get secrets from Key Vault
         id: get_secrets
         run: |
-          AZURE_CONTENT_ENDPOINT=$(az keyvault secret show --vault-name audsurvey-kv-l56h90 --name azure-content-endpoint --query value -o tsv)
-          AZURE_CONTENT_KEY=$(az keyvault secret show --vault-name audsurvey-kv-l56h90 --name azure-content-key --query value -o tsv)
-          ADMIN_SECRET=$(az keyvault secret show --vault-name audsurvey-kv-l56h90 --name admin-secret --query value -o tsv)
+          AZURE_CONTENT_ENDPOINT=$(az keyvault secret show --vault-name ${{ needs.infra.outputs.key_vault_name }} --name azure-content-endpoint --query value -o tsv)
+          AZURE_CONTENT_KEY=$(az keyvault secret show --vault-name ${{ needs.infra.outputs.key_vault_name }} --name azure-content-key --query value -o tsv)
+          ADMIN_SECRET=$(az keyvault secret show --vault-name ${{ needs.infra.outputs.key_vault_name }} --name admin-secret --query value -o tsv)
           echo "::add-mask::$AZURE_CONTENT_KEY"
           echo "::add-mask::$ADMIN_SECRET"
           echo "azure_content_endpoint=$AZURE_CONTENT_ENDPOINT" >> $GITHUB_OUTPUT
@@ -128,8 +136,8 @@ jobs:
           
           # Update the container image
           az containerapp update \
-            --name audsurvey-app-l56h90 \
-            --resource-group rg-audience-survey \
+            --name ${{ needs.infra.outputs.container_app_name }} \
+            --resource-group ${{ needs.infra.outputs.resource_group_name }} \
             --image "$IMAGE" \
             --secrets \
               azure-content-endpoint="${{ steps.get_secrets.outputs.azure_content_endpoint }}" \
@@ -139,7 +147,7 @@ jobs:
               AZURE_CONTENT_ENDPOINT=secretref:azure-content-endpoint \
               AZURE_CONTENT_KEY=secretref:azure-content-key \
               AZURE_ANALYZER_ID=audience-survey \
-              AZURE_STORAGE_ACCOUNT_NAME=audsurveyl56h90 \
+              AZURE_STORAGE_ACCOUNT_NAME=${{ needs.infra.outputs.storage_account_name }} \
               AZURE_STORAGE_CONTAINER_NAME=uploads \
               ADMIN_SECRET=secretref:admin-secret \
               PORT=3000
@@ -161,7 +169,7 @@ jobs:
       - name: Get admin secret from Key Vault
         id: admin_secret
         run: |
-          ADMIN_SECRET=$(az keyvault secret show --vault-name audsurvey-kv-l56h90 --name admin-secret --query value -o tsv)
+          ADMIN_SECRET=$(az keyvault secret show --vault-name ${{ needs.infra.outputs.key_vault_name }} --name admin-secret --query value -o tsv)
           echo "::add-mask::$ADMIN_SECRET"
           echo "admin_secret=$ADMIN_SECRET" >> $GITHUB_OUTPUT
 
