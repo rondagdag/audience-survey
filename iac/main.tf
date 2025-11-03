@@ -293,6 +293,28 @@ resource "azurerm_container_app_environment" "main" {
   tags = var.tags
 }
 
+# User-assigned managed identity for Container App
+# This allows us to grant Key Vault access BEFORE creating the Container App
+resource "azurerm_user_assigned_identity" "container_app" {
+  name                = "${var.project_name}-app-identity-${random_string.suffix.result}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  tags = var.tags
+}
+
+# Grant Container App identity access to Key Vault BEFORE Container App creation
+resource "azurerm_key_vault_access_policy" "container_app" {
+  key_vault_id = azurerm_key_vault.main.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_user_assigned_identity.container_app.principal_id
+
+  secret_permissions = [
+    "Get",
+    "List"
+  ]
+}
+
 # Container App for the Next.js app
 resource "azurerm_container_app" "web" {
   name                         = "${var.project_name}-app-${random_string.suffix.result}"
@@ -301,12 +323,17 @@ resource "azurerm_container_app" "web" {
   revision_mode                = "Single"
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.container_app.id]
   }
+
+  depends_on = [
+    azurerm_key_vault_access_policy.container_app
+  ]
 
   registry {
     server   = azurerm_container_registry.main.login_server
-    identity = "System" # Use system-assigned managed identity for ACR pulls
+    identity = azurerm_user_assigned_identity.container_app.id
   }
 
   ingress {
@@ -362,44 +389,32 @@ resource "azurerm_container_app" "web" {
   secret {
     name                = "azure-content-key"
     key_vault_secret_id = azurerm_key_vault_secret.ai_services_key.id
-    identity            = "System"
+    identity            = azurerm_user_assigned_identity.container_app.id
   }
   secret {
     name                = "azure-content-endpoint"
     key_vault_secret_id = azurerm_key_vault_secret.ai_services_endpoint.id
-    identity            = "System"
+    identity            = azurerm_user_assigned_identity.container_app.id
   }
   secret {
     name                = "admin-secret"
     key_vault_secret_id = azurerm_key_vault_secret.admin_secret.id
-    identity            = "System"
+    identity            = azurerm_user_assigned_identity.container_app.id
   }
 
   tags = var.tags
 }
 
-# Allow Container App to pull from ACR
+# Allow Container App identity to pull from ACR
 resource "azurerm_role_assignment" "acr_pull" {
   scope                = azurerm_container_registry.main.id
   role_definition_name = "AcrPull"
-  principal_id         = azurerm_container_app.web.identity[0].principal_id
+  principal_id         = azurerm_user_assigned_identity.container_app.principal_id
 }
 
-# Grant Container App access to Key Vault
-resource "azurerm_key_vault_access_policy" "container_app" {
-  key_vault_id = azurerm_key_vault.main.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = azurerm_container_app.web.identity[0].principal_id
-
-  secret_permissions = [
-    "Get",
-    "List"
-  ]
-}
-
-# Grant Container App access to Storage Account
+# Grant Container App identity access to Storage Account
 resource "azurerm_role_assignment" "container_storage" {
   scope                = azurerm_storage_account.main.id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_container_app.web.identity[0].principal_id
+  principal_id         = azurerm_user_assigned_identity.container_app.principal_id
 }
