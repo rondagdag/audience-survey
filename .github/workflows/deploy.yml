@@ -15,95 +15,16 @@ env:
   ARM_USE_OIDC: true
 
 jobs:
-  infra:
-    name: Provision infrastructure
-    runs-on: ubuntu-latest
-    outputs:
-      acr_login_server: ${{ steps.tf_outputs.outputs.acr_login_server }}
-      container_app_url: ${{ steps.tf_outputs.outputs.container_app_url }}
-      project_name: ${{ steps.vars.outputs.project_name }}
-      key_vault_name: ${{ steps.tf_outputs.outputs.key_vault_name }}
-      resource_group_name: ${{ steps.tf_outputs.outputs.resource_group_name }}
-      container_app_name: ${{ steps.tf_outputs.outputs.container_app_name }}
-      storage_account_name: ${{ steps.tf_outputs.outputs.storage_account_name }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Ensure Azure resource providers are registered
-        run: |
-          az provider register --namespace Microsoft.App
-          az provider register --namespace Microsoft.OperationalInsights
-          az provider register --namespace Microsoft.ContainerRegistry
-          az provider register --namespace Microsoft.KeyVault
-          az provider register --namespace Microsoft.CognitiveServices
-          az provider register --namespace Microsoft.MachineLearningServices
-          # Poll Microsoft.App until Registered to avoid 409 conflicts in ACA creation
-          for i in {1..30}; do \
-            state=$(az provider show -n Microsoft.App --query "registrationState" -o tsv); \
-            echo "Microsoft.App registration state: $state"; \
-            [ "$state" = "Registered" ] && break; \
-            sleep 5; \
-          done
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.8.5
-
-      - name: Terraform init/validate/plan/apply
-        working-directory: iac
-        env:
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        run: |
-          terraform init -upgrade
-          terraform validate
-          # If the resource group already exists in Azure but not in state, import it to avoid conflicts
-          if az group exists --name rg-audience-survey; then
-            echo "Resource group rg-audience-survey exists in Azure. Ensuring it's in Terraform state..."
-            if ! terraform state show azurerm_resource_group.main >/dev/null 2>&1; then
-              terraform import azurerm_resource_group.main \
-                "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-audience-survey" || true
-            fi
-          fi
-          terraform plan -out=tfplan
-          terraform apply -auto-approve tfplan
-
-      - name: Capture Terraform outputs
-        id: tf_outputs
-        working-directory: iac
-        env:
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        run: |
-          JSON=$(terraform output -json)
-          echo "$JSON" | jq -r '.acr_login_server.value' | sed 's/\n//g' | xargs -I{} echo "acr_login_server={}" >> $GITHUB_OUTPUT
-          echo "$JSON" | jq -r '.container_app_url.value' | sed 's/\n//g' | xargs -I{} echo "container_app_url={}" >> $GITHUB_OUTPUT
-          echo "$JSON" | jq -r '.key_vault_name.value' | sed 's/\n//g' | xargs -I{} echo "key_vault_name={}" >> $GITHUB_OUTPUT
-          echo "$JSON" | jq -r '.resource_group_name.value' | sed 's/\n//g' | xargs -I{} echo "resource_group_name={}" >> $GITHUB_OUTPUT
-          echo "$JSON" | jq -r '.container_app_name.value' | sed 's/\n//g' | xargs -I{} echo "container_app_name={}" >> $GITHUB_OUTPUT
-          echo "$JSON" | jq -r '.storage_account_name.value' | sed 's/\n//g' | xargs -I{} echo "storage_account_name={}" >> $GITHUB_OUTPUT
-
-      - name: Export variables
-        id: vars
-        run: |
-          echo "project_name=audsurvey" >> $GITHUB_OUTPUT
-
   build_and_deploy:
     name: Build, push image, update app
     runs-on: ubuntu-latest
-    needs: infra
+    env:
+      ACR_LOGIN_SERVER: audsurveyacrl56h90.azurecr.io
+      CONTAINER_APP_NAME: audsurvey-app-l56h90
+      RESOURCE_GROUP_NAME: rg-audience-survey
+      KEY_VAULT_NAME: audsurvey-kv-l56h90
+      STORAGE_ACCOUNT_NAME: audsurveyl56h90
+      PROJECT_NAME: audsurvey
     steps:
       - uses: actions/checkout@v4
 
@@ -116,8 +37,7 @@ jobs:
 
       - name: Azure CLI - Login to ACR
         run: |
-          ACR_SERVER="${{ needs.infra.outputs.acr_login_server }}"
-          ACR_NAME="${ACR_SERVER%%.*}"
+          ACR_NAME="${ACR_LOGIN_SERVER%%.*}"
           az acr login --name "$ACR_NAME"
 
       - name: Set up Docker Buildx
@@ -125,22 +45,18 @@ jobs:
 
       - name: Build and push image for AMD64
         working-directory: app
-        env:
-          ACR: ${{ needs.infra.outputs.acr_login_server }}
-          PROJECT: ${{ needs.infra.outputs.project_name }}
-          TAG: ${{ github.sha }}
         run: |
-          IMAGE="$ACR/$PROJECT/web:$TAG"
-          IMAGE_LATEST="$ACR/$PROJECT/web:latest"
+          IMAGE="$ACR_LOGIN_SERVER/$PROJECT_NAME/web:${{ github.sha }}"
+          IMAGE_LATEST="$ACR_LOGIN_SERVER/$PROJECT_NAME/web:latest"
           echo "Building $IMAGE for linux/amd64"
           docker buildx build --platform linux/amd64 -t "$IMAGE" -t "$IMAGE_LATEST" --push .
 
       - name: Get secrets from Key Vault
         id: get_secrets
         run: |
-          AZURE_CONTENT_ENDPOINT=$(az keyvault secret show --vault-name ${{ needs.infra.outputs.key_vault_name }} --name azure-content-endpoint --query value -o tsv)
-          AZURE_CONTENT_KEY=$(az keyvault secret show --vault-name ${{ needs.infra.outputs.key_vault_name }} --name azure-content-key --query value -o tsv)
-          ADMIN_SECRET=$(az keyvault secret show --vault-name ${{ needs.infra.outputs.key_vault_name }} --name admin-secret --query value -o tsv)
+          AZURE_CONTENT_ENDPOINT=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name azure-content-endpoint --query value -o tsv)
+          AZURE_CONTENT_KEY=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name azure-content-key --query value -o tsv)
+          ADMIN_SECRET=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name admin-secret --query value -o tsv)
           echo "::add-mask::$AZURE_CONTENT_KEY"
           echo "::add-mask::$ADMIN_SECRET"
           echo "azure_content_endpoint=$AZURE_CONTENT_ENDPOINT" >> $GITHUB_OUTPUT
@@ -148,17 +64,13 @@ jobs:
           echo "admin_secret=$ADMIN_SECRET" >> $GITHUB_OUTPUT
 
       - name: Update Container App with new image
-        env:
-          ACR: ${{ needs.infra.outputs.acr_login_server }}
-          PROJECT: ${{ needs.infra.outputs.project_name }}
-          TAG: ${{ github.sha }}
         run: |
-          IMAGE="$ACR/$PROJECT/web:$TAG"
+          IMAGE="$ACR_LOGIN_SERVER/$PROJECT_NAME/web:${{ github.sha }}"
           
           # Update the container image
           az containerapp update \
-            --name ${{ needs.infra.outputs.container_app_name }} \
-            --resource-group ${{ needs.infra.outputs.resource_group_name }} \
+            --name $CONTAINER_APP_NAME \
+            --resource-group $RESOURCE_GROUP_NAME \
             --image "$IMAGE" \
             --secrets \
               azure-content-endpoint="${{ steps.get_secrets.outputs.azure_content_endpoint }}" \
@@ -168,7 +80,7 @@ jobs:
               AZURE_CONTENT_ENDPOINT=secretref:azure-content-endpoint \
               AZURE_CONTENT_KEY=secretref:azure-content-key \
               AZURE_ANALYZER_ID=audience-survey \
-              AZURE_STORAGE_ACCOUNT_NAME=${{ needs.infra.outputs.storage_account_name }} \
+              AZURE_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME \
               AZURE_STORAGE_CONTAINER_NAME=uploads \
               ADMIN_SECRET=secretref:admin-secret \
               PORT=3000
@@ -176,7 +88,10 @@ jobs:
   e2e_tests:
     name: Run Playwright tests against deployed app
     runs-on: ubuntu-latest
-    needs: [infra, build_and_deploy]
+    needs: build_and_deploy
+    env:
+      KEY_VAULT_NAME: audsurvey-kv-l56h90
+      CONTAINER_APP_URL: https://audsurvey-app-l56h90--0000001.thankfulcoast-5116a769.westus.azurecontainerapps.io
     steps:
       - uses: actions/checkout@v4
 
@@ -190,7 +105,7 @@ jobs:
       - name: Get admin secret from Key Vault
         id: admin_secret
         run: |
-          ADMIN_SECRET=$(az keyvault secret show --vault-name ${{ needs.infra.outputs.key_vault_name }} --name admin-secret --query value -o tsv)
+          ADMIN_SECRET=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name admin-secret --query value -o tsv)
           echo "::add-mask::$ADMIN_SECRET"
           echo "admin_secret=$ADMIN_SECRET" >> $GITHUB_OUTPUT
 
@@ -217,7 +132,7 @@ jobs:
       - name: Run tests
         working-directory: app
         env:
-          E2E_BASE_URL: ${{ needs.infra.outputs.container_app_url }}
+          E2E_BASE_URL: ${{ env.CONTAINER_APP_URL }}
           ADMIN_SECRET: ${{ steps.admin_secret.outputs.admin_secret }}
         run: npm run test:e2e
 
