@@ -97,7 +97,10 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Azure CLI - Login to ACR
-        run: az acr login --name ${{ needs.infra.outputs.acr_login_server%%.* }}
+        run: |
+          ACR_SERVER="${{ needs.infra.outputs.acr_login_server }}"
+          ACR_NAME="${ACR_SERVER%%.*}"
+          az acr login --name "$ACR_NAME"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
