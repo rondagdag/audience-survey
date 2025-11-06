@@ -1,6 +1,6 @@
 // Azure Blob Storage service for uploading survey images
 import { BlobServiceClient } from '@azure/storage-blob';
-import { DefaultAzureCredential } from '@azure/identity';
+import { DefaultAzureCredential, ManagedIdentityCredential } from '@azure/identity';
 
 export interface BlobUploadResult {
   blobName: string;
@@ -16,6 +16,7 @@ export class BlobStorageService {
   constructor() {
     const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+    const managedIdentityClientId = process.env.AZURE_CLIENT_ID;
     
     if (!accountName && !connectionString) {
       throw new Error(
@@ -27,8 +28,12 @@ export class BlobStorageService {
     if (connectionString) {
       this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
     } else if (accountName) {
-      // Use DefaultAzureCredential for production (supports managed identity, Azure CLI, etc.)
-      const credential = new DefaultAzureCredential();
+      // Use ManagedIdentityCredential when AZURE_CLIENT_ID is set (Container Apps with user-assigned identity)
+      // Otherwise fall back to DefaultAzureCredential (supports system-assigned identity, Azure CLI, etc.)
+      const credential = managedIdentityClientId 
+        ? new ManagedIdentityCredential(managedIdentityClientId)
+        : new DefaultAzureCredential();
+      
       this.blobServiceClient = new BlobServiceClient(
         `https://${accountName}.blob.core.windows.net`,
         credential

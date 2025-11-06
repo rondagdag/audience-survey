@@ -44,11 +44,11 @@ export default function AdminPage() {
     setError('');
 
     try {
-      // Test admin secret by attempting to fetch sessions
-      const response = await fetch('/api/sessions', {
+      // Verify admin secret using dedicated auth endpoint
+      const response = await fetch('/api/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: '__test_auth__', adminSecret }),
+        body: JSON.stringify({ adminSecret }),
       });
 
       const data = await response.json();
@@ -56,12 +56,6 @@ export default function AdminPage() {
       if (response.status === 401 || data.error === 'Unauthorized') {
         setError('Invalid admin secret. Please check and try again.');
       } else if (data.success) {
-        // Auth successful, close the test session
-        await fetch('/api/sessions', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId: data.session.id, adminSecret }),
-        });
         setIsAuthenticated(true);
         setError('');
       } else {
@@ -136,6 +130,34 @@ export default function AdminPage() {
     }
   };
 
+  const reactivateSession = async (sessionId: string) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/sessions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, adminSecret }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        await fetchSessions();
+      } else if (response.status === 401 || data.error === 'Unauthorized') {
+        setError('Authentication failed. Your admin secret may have expired. Please refresh and login again.');
+        setIsAuthenticated(false);
+      } else {
+        setError(data.error || 'Failed to reactivate session');
+      }
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadSummary = async (sessionId: string) => {
     try {
       const response = await fetch(`/api/summary?sessionId=${sessionId}`);
@@ -147,6 +169,10 @@ export default function AdminPage() {
     } catch (err) {
       console.error('Failed to load summary:', err);
     }
+  };
+
+  const viewSessionSummary = async (sessionId: string) => {
+    await loadSummary(sessionId);
   };
 
   const exportCSV = () => {
@@ -416,22 +442,60 @@ export default function AdminPage() {
                       {session.closedAt && ' - ' + new Date(session.closedAt).toLocaleString()}
                     </div>
                   </div>
-                  <div>
+                  <div className="flex gap-2">
                     {session.isActive ? (
                       <span className="text-green-600 font-semibold text-sm">Active</span>
                     ) : (
-                      <button
-                        onClick={() => {
-                          loadSummary(session.id);
-                          window.open(
-                            `/api/export?sessionId=${session.id}&adminSecret=${encodeURIComponent(adminSecret)}`,
-                            '_blank'
-                          );
-                        }}
-                        className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
-                      >
-                        Export
-                      </button>
+                      <>
+                        <button
+                          onClick={() => viewSessionSummary(session.id)}
+                          disabled={loading}
+                          className="text-purple-600 hover:text-purple-700 font-semibold text-sm disabled:opacity-50"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => reactivateSession(session.id)}
+                          disabled={loading}
+                          className="text-green-600 hover:text-green-700 font-semibold text-sm disabled:opacity-50"
+                        >
+                          Reactivate
+                        </button>
+                        <button
+                          onClick={() => {
+                            window.open(
+                              `/api/export?sessionId=${session.id}&adminSecret=${encodeURIComponent(adminSecret)}`,
+                              '_blank'
+                            );
+                          }}
+                          className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                        >
+                          Export
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (confirm(`Delete session "${session.name}"? This cannot be undone.`)) {
+                              try {
+                                const response = await fetch(
+                                  `/api/sessions?sessionId=${session.id}&adminSecret=${encodeURIComponent(adminSecret)}`,
+                                  { method: 'DELETE' }
+                                );
+                                if (response.ok) {
+                                  await fetchSessions();
+                                } else {
+                                  setError('Failed to delete session');
+                                }
+                              } catch {
+                                setError('Network error while deleting session');
+                              }
+                            }
+                          }}
+                          disabled={loading}
+                          className="text-red-600 hover:text-red-700 font-semibold text-sm disabled:opacity-50"
+                        >
+                          Delete
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>

@@ -1,9 +1,26 @@
 import { Session, SurveyResult, SessionSummary } from './types';
 
-// In-memory storage (replace with database in production)
+// In-memory storage (file persistence handled by separate module)
 class DataStore {
   private sessions: Map<string, Session> = new Map();
   private surveyResults: Map<string, SurveyResult[]> = new Map();
+
+  // Expose internal data for persistence module
+  getSessionsMap(): Map<string, Session> {
+    return this.sessions;
+  }
+
+  getSurveyResultsMap(): Map<string, SurveyResult[]> {
+    return this.surveyResults;
+  }
+
+  setSessionsMap(sessions: Map<string, Session>): void {
+    this.sessions = sessions;
+  }
+
+  setSurveyResultsMap(results: Map<string, SurveyResult[]>): void {
+    this.surveyResults = results;
+  }
 
   // Session management
   createSession(name: string): Session {
@@ -48,6 +65,33 @@ class DataStore {
       session.closedAt = new Date().toISOString();
     }
     return session;
+  }
+
+  reactivateSession(sessionId: string): Session | undefined {
+    // Close any currently active sessions
+    this.sessions.forEach((session) => {
+      if (session.isActive) {
+        session.isActive = false;
+        session.closedAt = new Date().toISOString();
+      }
+    });
+
+    // Reactivate the specified session
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.isActive = true;
+      session.closedAt = undefined;
+    }
+    return session;
+  }
+
+  deleteSession(sessionId: string): boolean {
+    const deleted = this.sessions.delete(sessionId);
+    if (deleted) {
+      // Also delete associated survey results
+      this.surveyResults.delete(sessionId);
+    }
+    return deleted;
   }
 
   // Survey result management

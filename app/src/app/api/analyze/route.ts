@@ -7,6 +7,16 @@ import { BlobStorageService } from '@/lib/blob-storage';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
+async function saveData() {
+  try {
+    const { FilePersistence } = require('@/lib/persistence');
+    const persistence = new FilePersistence();
+    await persistence.saveAll(dataStore.getSessionsMap(), dataStore.getSurveyResultsMap());
+  } catch (error) {
+    // Silent fail - persistence is optional
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Check if there's an active session
@@ -117,6 +127,7 @@ export async function POST(request: NextRequest) {
 
     // Store result
     dataStore.addSurveyResult(surveyResult);
+    await saveData();
 
     return NextResponse.json({
       success: true,

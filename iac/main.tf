@@ -385,6 +385,10 @@ resource "azurerm_container_app" "web" {
         value = azurerm_storage_container.uploads.name
       }
       env {
+        name  = "AZURE_CLIENT_ID"
+        value = azurerm_user_assigned_identity.container_app.client_id
+      }
+      env {
         name        = "ADMIN_SECRET"
         secret_name = "admin-secret"
       }

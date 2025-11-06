@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://audsurvey-app-l56h90--0000001.thankfulcoast-5116a769.westus.azurecontainerapps.io
+      url: https://audsurvey-app-l56h90.thankfulwater-714ba05a.westus.azurecontainerapps.io
     env:
       ACR_LOGIN_SERVER: audsurveyacrl56h90.azurecr.io
       CONTAINER_APP_NAME: audsurvey-app-l56h90
@@ -70,6 +70,12 @@ jobs:
         run: |
           IMAGE="$ACR_LOGIN_SERVER/$PROJECT_NAME/web:${{ github.sha }}"
           
+          # Get the Container App's managed identity client ID
+          MANAGED_IDENTITY_CLIENT_ID=$(az containerapp show \
+            --name $CONTAINER_APP_NAME \
+            --resource-group $RESOURCE_GROUP_NAME \
+            --query "identity.userAssignedIdentities.*.clientId | [0]" -o tsv)
+          
           # Update the container image and secrets
           az containerapp update \
             --name $CONTAINER_APP_NAME \
@@ -81,6 +87,7 @@ jobs:
               AZURE_ANALYZER_ID=audience-survey \
               AZURE_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME \
               AZURE_STORAGE_CONTAINER_NAME=uploads \
+              AZURE_CLIENT_ID=$MANAGED_IDENTITY_CLIENT_ID \
               ADMIN_SECRET="${{ steps.get_secrets.outputs.admin_secret }}" \
               PORT=3000
 
@@ -92,7 +99,7 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.49.0-jammy
     env:
       KEY_VAULT_NAME: audsurvey-kv-l56h90
-      CONTAINER_APP_URL: https://audsurvey-app-l56h90--0000001.thankfulcoast-5116a769.westus.azurecontainerapps.io
+      CONTAINER_APP_URL: https://audsurvey-app-l56h90.thankfulwater-714ba05a.westus.azurecontainerapps.io
     steps:
       - uses: actions/checkout@v4
 
