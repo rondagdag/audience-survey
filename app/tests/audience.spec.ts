@@ -3,7 +3,6 @@ import { test, expect } from '@playwright/test';
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'test';
 
 test.describe('Audience View - No Active Session', () => {
-  test.describe.configure({ mode: 'serial' }); // Run tests serially to avoid race conditions
   
   test.beforeEach(async ({ page, context }) => {
     // Ensure no active session exists

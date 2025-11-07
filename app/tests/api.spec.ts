@@ -31,8 +31,6 @@ test.describe('API - Auth Endpoint', () => {
 });
 
 test.describe('API - Sessions Endpoint', () => {
-  test.describe.configure({ mode: 'serial' }); // Run tests serially to avoid race conditions
-  
   test('GET /api/sessions should return sessions list', async ({ request }) => {
     const response = await request.get('/api/sessions');
     
@@ -183,8 +181,6 @@ test.describe('API - Sessions Endpoint', () => {
 });
 
 test.describe('API - Analyze Endpoint', () => {
-  test.describe.configure({ mode: 'serial' }); // Run tests serially to avoid race conditions
-  
   test('POST /api/analyze should fail without active session', async ({ request }) => {
     // First, close all active sessions explicitly
     const sessionsResponse = await request.get('/api/sessions');

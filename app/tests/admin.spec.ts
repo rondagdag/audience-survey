@@ -3,7 +3,6 @@ import { test, expect } from '@playwright/test';
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'test';
 
 test.describe('Admin Dashboard', () => {
-  test.describe.configure({ mode: 'serial' }); // Run tests serially to avoid race conditions
   
   test.beforeEach(async ({ page }) => {
     await page.goto('/admin');
@@ -18,6 +17,9 @@ test.describe('Admin Dashboard', () => {
   test('should authenticate with correct admin secret', async ({ page }) => {
     await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
+    
+    // Wait for dashboard to load after login
+    await page.waitForSelector('h1:has-text("Speaker Dashboard")', { timeout: 15000 });
     
     // Should see speaker dashboard after login (using auth/verify endpoint)
     await expect(page.getByRole('heading', { name: /speaker dashboard/i })).toBeVisible();
@@ -151,8 +153,6 @@ test.describe('Admin Dashboard', () => {
 });
 
 test.describe('Admin Dashboard - Session History', () => {
-  test.describe.configure({ mode: 'serial' }); // Run tests serially to avoid race conditions
-  
   test('should display session history', async ({ page }) => {
     await page.goto('/admin');
     
