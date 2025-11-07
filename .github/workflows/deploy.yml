@@ -76,12 +76,16 @@ jobs:
             --resource-group $RESOURCE_GROUP_NAME \
             --query "identity.userAssignedIdentities.*.clientId | [0]" -o tsv)
           
-          # Update the container image and secrets
+          echo "Updating Container App with image: $IMAGE"
+          echo "Using managed identity: $MANAGED_IDENTITY_CLIENT_ID"
+          
+          # Update the container image and environment variables
           az containerapp update \
             --name $CONTAINER_APP_NAME \
             --resource-group $RESOURCE_GROUP_NAME \
             --image "$IMAGE" \
             --set-env-vars \
+              NODE_ENV=production \
               AZURE_CONTENT_ENDPOINT="${{ steps.get_secrets.outputs.azure_content_endpoint }}" \
               AZURE_CONTENT_KEY="${{ steps.get_secrets.outputs.azure_content_key }}" \
               AZURE_ANALYZER_ID=audience-survey \
@@ -89,7 +93,8 @@ jobs:
               AZURE_STORAGE_CONTAINER_NAME=uploads \
               AZURE_CLIENT_ID=$MANAGED_IDENTITY_CLIENT_ID \
               ADMIN_SECRET="${{ steps.get_secrets.outputs.admin_secret }}" \
-              PORT=3000
+              PORT=3000 \
+              NEXT_TELEMETRY_DISABLED=1
 
   e2e_tests:
     name: Run Playwright tests against deployed app
@@ -138,7 +143,7 @@ jobs:
         env:
           E2E_BASE_URL: ${{ env.CONTAINER_APP_URL }}
           ADMIN_SECRET: ${{ steps.admin_secret.outputs.admin_secret }}
-        run: npm run test:e2e
+        run: npx playwright test --project=chromium --reporter=list
 
       - name: Upload Playwright report
         if: always()

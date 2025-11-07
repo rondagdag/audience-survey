@@ -34,7 +34,10 @@ RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 # Copy the standalone output and public assets
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Create data directory for persistence (writable by nextjs user)
+RUN mkdir -p data/uploads && chown -R nextjs:nodejs data
 
 # Port for Next.js
 ENV PORT=3000
