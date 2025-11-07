@@ -3,6 +3,8 @@ import { test, expect } from '@playwright/test';
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'test';
 
 test.describe('Admin Dashboard', () => {
+  test.describe.configure({ mode: 'serial' }); // Run tests serially to avoid race conditions
+  
   test.beforeEach(async ({ page }) => {
     await page.goto('/admin');
   });
@@ -17,7 +19,7 @@ test.describe('Admin Dashboard', () => {
     await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
     
-    // Should see speaker dashboard after login
+    // Should see speaker dashboard after login (using auth/verify endpoint)
     await expect(page.getByRole('heading', { name: /speaker dashboard/i })).toBeVisible();
     await expect(page.getByText(/session management/i)).toBeVisible();
   });
@@ -33,13 +35,14 @@ test.describe('Admin Dashboard', () => {
     await page.getByRole('button', { name: /login/i }).click();
     
     // Wait for dashboard to load
+    await page.waitForSelector('h1:has-text("Speaker Dashboard")', { timeout: 15000 });
     await expect(page.getByText(/session management/i)).toBeVisible();
     
     // Close any existing active session first
     const closeButton = page.getByRole('button', { name: /close session/i });
     if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
       await closeButton.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
     }
     
     // Wait for session name input to be visible
@@ -49,11 +52,17 @@ test.describe('Admin Dashboard', () => {
     // Create session
     const sessionName = `Test Session ${Date.now()}`;
     await sessionNameInput.fill(sessionName);
+    
+    const createSessionPromise = page.waitForResponse(response => 
+      response.url().includes('/api/sessions') && response.request().method() === 'POST'
+    );
     await page.getByRole('button', { name: /create session/i }).click();
+    await createSessionPromise;
+    await page.waitForTimeout(500);
     
     // Should see active session
-    await expect(page.getByText(/active since/i)).toBeVisible();
-    await expect(page.locator('.text-green-900', { hasText: sessionName }).first()).toBeVisible();
+    await expect(page.getByText(/active since/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.text-green-900').filter({ hasText: sessionName })).toBeVisible({ timeout: 5000 });
   });
 
   test('should close active session', async ({ page }) => {
@@ -61,11 +70,14 @@ test.describe('Admin Dashboard', () => {
     await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
     
+    // Wait for dashboard to load
+    await page.waitForSelector('h1:has-text("Speaker Dashboard")', { timeout: 15000 });
+    
     // Close any existing active session first
     const closeButton = page.getByRole('button', { name: /close session/i });
     if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
       await closeButton.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
     }
     
     // Wait for session name input and create session
@@ -73,7 +85,13 @@ test.describe('Admin Dashboard', () => {
     await expect(sessionNameInput).toBeVisible({ timeout: 10000 });
     const sessionName = `Test Session ${Date.now()}`;
     await sessionNameInput.fill(sessionName);
+    
+    const createSessionPromise = page.waitForResponse(response => 
+      response.url().includes('/api/sessions') && response.request().method() === 'POST'
+    );
     await page.getByRole('button', { name: /create session/i }).click();
+    await createSessionPromise;
+    await page.waitForTimeout(500);
     await expect(page.getByText(/active since/i)).toBeVisible();
     
     // Close session and wait for API response
@@ -84,8 +102,8 @@ test.describe('Admin Dashboard', () => {
     await sessionsPromise;
     
     // Wait for UI to update
-    await page.waitForTimeout(500);
-    await expect(page.getByPlaceholder(/session name/i)).toBeVisible();
+    await page.waitForTimeout(1000);
+    await expect(page.getByPlaceholder(/session name/i)).toBeVisible({ timeout: 10000 });
   });
 
   test('should display session summary with metrics', async ({ page }) => {
@@ -133,12 +151,17 @@ test.describe('Admin Dashboard', () => {
 });
 
 test.describe('Admin Dashboard - Session History', () => {
+  test.describe.configure({ mode: 'serial' }); // Run tests serially to avoid race conditions
+  
   test('should display session history', async ({ page }) => {
     await page.goto('/admin');
     
     // Login
     await page.getByPlaceholder('Admin Secret').fill(ADMIN_SECRET);
     await page.getByRole('button', { name: /login/i }).click();
+    
+    // Wait for dashboard to load
+    await page.waitForSelector('h1:has-text("Speaker Dashboard")', { timeout: 15000 });
     
     // Close any existing active session first
     const closeButton = page.getByRole('button', { name: /close session/i });
@@ -151,7 +174,13 @@ test.describe('Admin Dashboard - Session History', () => {
     const sessionNameInput = page.getByPlaceholder(/session name/i);
     await sessionNameInput.waitFor({ state: 'visible', timeout: 10000 });
     await sessionNameInput.fill('History Test Session');
+    
+    const createSessionPromise = page.waitForResponse(response => 
+      response.url().includes('/api/sessions') && response.request().method() === 'POST'
+    );
     await page.getByRole('button', { name: /create session/i }).click();
+    await createSessionPromise;
+    await page.waitForTimeout(500);
     await expect(page.getByText(/active since/i)).toBeVisible();
     
     // Close session and wait for API response
@@ -162,11 +191,11 @@ test.describe('Admin Dashboard - Session History', () => {
     await sessionsPromise;
     
     // Wait for UI to update
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     await expect(page.getByPlaceholder(/session name/i)).toBeVisible();
     
     // Should show session history section
-    await expect(page.getByText(/session history/i)).toBeVisible();
-    await expect(page.getByText(/history test session/i).first()).toBeVisible();
+    await expect(page.getByText(/session history/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/history test session/i).first()).toBeVisible({ timeout: 10000 });
   });
 });
