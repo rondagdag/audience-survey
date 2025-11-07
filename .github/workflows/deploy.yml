@@ -100,8 +100,6 @@ jobs:
     name: Run Playwright tests against deployed app
     runs-on: ubuntu-latest
     needs: build_and_deploy
-    container:
-      image: mcr.microsoft.com/playwright:v1.49.0-jammy
     env:
       KEY_VAULT_NAME: audsurvey-kv-l56h90
       CONTAINER_APP_URL: https://audsurvey-app-l56h90.thankfulwater-714ba05a.westus.azurecontainerapps.io
@@ -147,7 +145,6 @@ jobs:
         env:
           E2E_BASE_URL: ${{ env.CONTAINER_APP_URL }}
           ADMIN_SECRET: ${{ steps.admin_secret.outputs.admin_secret }}
-          HOME: /root
         run: npx playwright test --project=chromium --reporter=list
 
       - name: Upload Playwright report
