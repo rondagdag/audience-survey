@@ -3,8 +3,8 @@ import { BlobServiceClient } from '@azure/storage-blob';
 import { DefaultAzureCredential, ManagedIdentityCredential } from '@azure/identity';
 
 export class FilePersistence {
-  private blobServiceClient: BlobServiceClient;
-  private containerName: string;
+  private blobServiceClient!: BlobServiceClient;
+  private containerName!: string;
   private sessionsBlob: string = 'data/sessions.json';
   private resultsBlob: string = 'data/survey-results.json';
   private useLocalFallback: boolean = false;
@@ -57,7 +57,7 @@ export class FilePersistence {
         const downloadResponse = await blobClient.download();
         const downloaded = await this.streamToString(downloadResponse.readableStreamBody!);
         const sessionsData = JSON.parse(downloaded);
-        const sessions = new Map(Object.entries(sessionsData));
+        const sessions = new Map(Object.entries(sessionsData)) as Map<string, Session>;
         console.log(`✅ Loaded ${sessions.size} sessions from blob storage`);
         return sessions;
       }
@@ -82,7 +82,7 @@ export class FilePersistence {
         const downloadResponse = await blobClient.download();
         const downloaded = await this.streamToString(downloadResponse.readableStreamBody!);
         const resultsData = JSON.parse(downloaded);
-        const results = new Map(Object.entries(resultsData));
+        const results = new Map(Object.entries(resultsData)) as Map<string, SurveyResult[]>;
         const totalResults = Array.from(results.values()).reduce((sum, arr) => sum + arr.length, 0);
         console.log(`✅ Loaded ${totalResults} survey results from blob storage`);
         return results;
@@ -174,7 +174,7 @@ export class FilePersistence {
       
       if (fs.existsSync(sessionsFile)) {
         const sessionsData = JSON.parse(fs.readFileSync(sessionsFile, 'utf-8'));
-        const sessions = new Map(Object.entries(sessionsData));
+        const sessions = new Map(Object.entries(sessionsData)) as Map<string, Session>;
         console.log(`✅ Loaded ${sessions.size} sessions from local file`);
         return sessions;
       }
@@ -193,7 +193,7 @@ export class FilePersistence {
       
       if (fs.existsSync(resultsFile)) {
         const resultsData = JSON.parse(fs.readFileSync(resultsFile, 'utf-8'));
-        const results = new Map(Object.entries(resultsData));
+        const results = new Map(Object.entries(resultsData)) as Map<string, SurveyResult[]>;
         const totalResults = Array.from(results.values()).reduce((sum, arr) => sum + arr.length, 0);
         console.log(`✅ Loaded ${totalResults} survey results from local file`);
         return results;
