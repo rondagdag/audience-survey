@@ -133,6 +133,10 @@ jobs:
         working-directory: app
         run: npm ci
 
+      - name: Install Playwright browsers
+        working-directory: app
+        run: npx playwright install --with-deps chromium
+
       - name: Wait for Container App to be ready
         run: |
           echo "Waiting 30 seconds for Container App to stabilize after update..."
@@ -143,6 +147,7 @@ jobs:
         env:
           E2E_BASE_URL: ${{ env.CONTAINER_APP_URL }}
           ADMIN_SECRET: ${{ steps.admin_secret.outputs.admin_secret }}
+          HOME: /root
         run: npx playwright test --project=chromium --reporter=list
 
       - name: Upload Playwright report

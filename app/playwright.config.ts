@@ -7,6 +7,8 @@ const DEPLOYED_BASE = process.env.E2E_BASE_URL;
 
 export default defineConfig({
   testDir: './tests',
+  /* Global setup to clear persisted data */
+  globalSetup: require.resolve('./tests/global-setup.ts'),
   /* Maximum time one test can run for. */
   timeout: 60 * 1000,
   /* Run tests in files in parallel */
