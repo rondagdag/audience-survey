@@ -1,5 +1,26 @@
 # Audience Survey - AI Agent Instructions
 
+## Project Context
+
+**Current Status**: Production deployment on Azure Container Apps with global CDN (Azure Front Door).
+
+**Recent Changes** (November 2024):
+- ✅ Deployed Azure Front Door Standard tier for global CDN (~40 min initial propagation)
+- ✅ Verified cache working (x-cache headers present, 60-80% faster for repeat visits)
+- ✅ Cost analysis complete: $100-150/month with CDN, $50-75 without
+- ✅ Terraform state synced with live resources (use `terraform refresh` if drift occurs)
+
+**Deployment URLs** (current):
+- Production (CDN): `https://audsurvey-endpoint-l56h90-dndxawb5f3g2brb0.z03.azurefd.net`
+- Direct (West US): `https://audsurvey-app-l56h90.thankfulwater-714ba05a.westus.azurecontainerapps.io`
+
+**Key Design Decisions**:
+1. **Singleton session pattern** - Only ONE active session at a time enforced at data layer
+2. **In-memory storage** - DataStore uses Maps, resets on restart (ephemeral by design for demos)
+3. **Blob storage first** - Images uploaded to Azure Blob before analysis (traceability via `imagePath`)
+4. **Polling architecture** - Client polls APIs every 3-5 seconds (no WebSockets, simpler deployment)
+5. **Managed identity** - Container Apps uses Azure AD for Storage/Key Vault (no connection strings in env)
+
 ## Project Structure
 
 The project is organized as follows:
@@ -282,9 +303,168 @@ const summary = dataStore.getSessionSummary(sessionId);
 
 ## Deployment
 
-- **Vercel**: Auto-detects Next.js - add env vars in dashboard
+### Azure Container Apps (Production - Recommended)
+**Current deployment**: Azure Container Apps with Azure Front Door CDN for global performance.
+
+**Infrastructure components** (managed via Terraform in `iac/`):
+- **Container Apps**: 0.5 vCPU, 1GB RAM, West US region, 1-2 replicas
+- **Azure Front Door**: Standard tier CDN with 118+ global PoPs (adds ~$50-75/month)
+- **Container Registry**: Basic tier for Docker images
+- **Storage Account**: Standard LRS for survey images
+- **AI Services**: S0 tier for Content Understanding
+- **Key Vault**: Secrets management with managed identity access
+
+**Deployment URLs**:
+- **Front Door CDN** (global): `https://audsurvey-endpoint-<suffix>-<hash>.z03.azurefd.net`
+- **Direct URL** (West US): `https://audsurvey-app-<suffix>.thankfulwater-<hash>.westus.azurecontainerapps.io`
+- Use Front Door for production traffic (50-100ms TTFB for global users with cache)
+- Direct URL for debugging/testing only
+
+**GitHub Actions workflow** (`.github/workflows/deploy.yml`):
+```bash
+# Triggered on push to main or manual dispatch
+# 1. Builds Docker image tagged with commit SHA
+# 2. Pushes to ACR (audsurveyacrl56h90.azurecr.io)
+# 3. Updates Container App with new image + env vars from Key Vault
+# 4. Runs Playwright E2E tests against deployed URL
+```
+
+**Manual deployment** (requires `az login`):
+```bash
+# Get Terraform outputs first
+cd iac
+ACR=$(terraform output -raw acr_login_server)
+RESOURCE_GROUP=$(terraform output -raw resource_group_name)
+CONTAINER_APP=$(terraform output -raw container_app_name)
+
+# Build and push image
+cd ../app
+TAG=$(git rev-parse --short HEAD)
+docker build -t "$ACR/audsurvey/web:$TAG" .
+az acr login --name ${ACR%%.*}
+docker push "$ACR/audsurvey/web:$TAG"
+
+# Update Container App
+az containerapp update \
+  --name $CONTAINER_APP \
+  --resource-group $RESOURCE_GROUP \
+  --image "$ACR/audsurvey/web:$TAG"
+```
+
+**Terraform commands**:
+```bash
+cd iac
+terraform init                    # Initialize providers
+terraform plan -out=tfplan        # Preview changes
+terraform apply tfplan            # Apply infrastructure changes
+terraform refresh                 # Sync state with Azure (CRITICAL after manual Azure Portal changes)
+terraform output                  # View all output values
+terraform destroy                 # Delete all resources (use with caution)
+```
+
+**Container App specifics**:
+- Health check: `/` endpoint (must return 200 OK)
+- Port: 3000 (Next.js default)
+- Image format: `<acr>.azurecr.io/audsurvey/web:<tag>`
+- Environment variables loaded from Key Vault secrets via managed identity
+- Managed identity has roles: `AcrPull`, `Storage Blob Data Contributor`, `Key Vault Secrets User`
+
+**Azure Front Door patterns**:
+- **First deployment**: Takes 15-45 minutes for global propagation (shows "NotStarted" → "Succeeded")
+- **Cache behavior**: Ignores `utm_*` query params, compresses js/css/html/json
+- **Health probes**: Every 100 seconds to Container App origin
+- **Headers**: Look for `x-cache: TCP_HIT` (cached), `TCP_MISS` (origin fetch), `TCP_REMOTE_HIT` (PoP cache)
+- **Debugging**: Use `curl -I <url>` to check cache headers, `az afd endpoint show` for propagation status
+
+**Cost breakdown** (monthly estimates):
+- **With Front Door**: $100-150/month
+  - Front Door Standard: $50-75
+  - Container Apps: $25-35
+  - AI Services: $10-30
+  - Storage + ACR + Logs + Key Vault: $10-15
+- **Without Front Door**: $50-75/month (remove Front Door resources from Terraform)
+- **Light usage**: Scale down to 0.25 vCPU, min replicas = 0 (-$12/month)
+- **Heavy usage**: Scale up to 1 vCPU, max replicas = 5 (+$30/month)
+
+**Cost optimization**:
+```bash
+# Remove Front Door (saves ~$55/month, lose global CDN)
+cd iac
+terraform destroy -target=azurerm_cdn_frontdoor_profile.main
+terraform apply  # Update state
+
+# Scale down Container Apps (saves ~$12/month)
+# Edit iac/variables.tf: container_cpu = "0.25", container_memory = "0.5Gi"
+terraform apply
+```
+
+### Alternative Deployments
+- **Vercel**: Auto-detects Next.js - add env vars in dashboard (Free tier available)
 - **Azure Static Web Apps**: `staticwebapp.config.json` configured - use `swa` CLI
-- **Required env vars**: `ADMIN_SECRET`, `AZURE_CONTENT_ENDPOINT`, `AZURE_CONTENT_KEY`, `AZURE_ANALYZER_ID`
+
+**Required env vars** (all deployments):
+- `ADMIN_SECRET` - Admin authentication secret (from Key Vault or manual)
+- `AZURE_CONTENT_ENDPOINT` - AI Services endpoint (format: `https://<name>.services.ai.azure.com/`)
+- `AZURE_CONTENT_KEY` - AI Services API key
+- `AZURE_ANALYZER_ID` - Custom analyzer name (default: `audience-survey`)
+- `AZURE_STORAGE_ACCOUNT_NAME` - Storage account name (for managed identity) OR
+- `AZURE_STORAGE_CONNECTION_STRING` - Connection string (for local dev/Vercel)
+- `AZURE_STORAGE_CONTAINER_NAME` - Blob container name (default: `uploads`)
+
+## Troubleshooting Production Issues
+
+### Terraform State Drift
+**Problem**: Terraform state shows old revision (e.g., `--0000002`) but actual revision is `--0000010`
+```bash
+cd iac
+terraform refresh  # CRITICAL: Syncs state with actual Azure resources
+terraform show     # Verify state is current
+```
+
+### 404 on Container App URL
+**Causes**:
+1. Using revision-specific URL (e.g., `audsurvey-app-l56h90--0000002.thankfulwater-...`) - these expire
+2. Outdated Terraform state - run `terraform refresh`
+3. Container stopped - check `az containerapp show` for `runningState`
+
+**Solution**: Always use main FQDN without revision suffix
+
+### Front Door Not Loading
+**Symptoms**: Requests pending/timeout on Front Door URL, direct URL works
+**Causes**:
+1. Initial global propagation (15-45 minutes after first `terraform apply`)
+2. Origin health probe failing (check Container App `/` returns 200)
+3. DNS propagation delays
+
+**Debug steps**:
+```bash
+# Check Front Door deployment status
+az afd endpoint show \
+  --profile-name <profile-name> \
+  --resource-group rg-audience-survey \
+  --endpoint-name <endpoint-name> \
+  --query "deploymentStatus"
+# Wait for "Succeeded" (not "NotStarted")
+
+# Test cache headers
+curl -I https://audsurvey-endpoint-<suffix>.z03.azurefd.net
+# Look for: x-cache header (TCP_HIT = cached, TCP_MISS = origin)
+
+# Verify origin is healthy
+curl -I https://audsurvey-app-<suffix>.thankfulwater-<hash>.westus.azurecontainerapps.io
+# Must return 200 OK
+```
+
+### Session Not Found After Restart
+**Cause**: In-memory `DataStore` resets on server restart (ephemeral storage)
+**Solution**: Export CSV before maintenance windows, or migrate to persistent database (MongoDB/PostgreSQL)
+
+### High Latency for Global Users
+**Without CDN**: 400-500ms TTFB from Philippines to West US
+**With CDN** (Front Door):
+- First request: 400-500ms (cache miss)
+- Cached requests: 50-100ms (served from Manila/Singapore PoP)
+- Cache TTL: Respects origin Cache-Control headers
 
 ---
 

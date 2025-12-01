@@ -162,3 +162,19 @@ output "ai_foundry_project_id" {
   description = "ID of the Azure AI Foundry project"
   value       = azurerm_ai_foundry_project.main.id
 }
+
+# Front Door outputs
+output "frontdoor_endpoint_url" {
+  description = "Azure Front Door endpoint URL (use this for production)"
+  value       = "https://${azurerm_cdn_frontdoor_endpoint.main.host_name}"
+}
+
+output "frontdoor_endpoint_hostname" {
+  description = "Azure Front Door endpoint hostname"
+  value       = azurerm_cdn_frontdoor_endpoint.main.host_name
+}
+
+output "frontdoor_profile_name" {
+  description = "Azure Front Door profile name"
+  value       = azurerm_cdn_frontdoor_profile.main.name
+}

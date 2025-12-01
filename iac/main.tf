@@ -434,3 +434,129 @@ resource "azurerm_role_assignment" "container_storage" {
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_user_assigned_identity.container_app.principal_id
 }
+
+# Azure Front Door Profile (Standard tier for global CDN)
+resource "azurerm_cdn_frontdoor_profile" "main" {
+  name                = "${var.project_name}-afd-${random_string.suffix.result}"
+  resource_group_name = azurerm_resource_group.main.name
+  sku_name            = "Standard_AzureFrontDoor"
+
+  tags = var.tags
+}
+
+# Front Door Endpoint (entry point for users)
+resource "azurerm_cdn_frontdoor_endpoint" "main" {
+  name                     = "${var.project_name}-endpoint-${random_string.suffix.result}"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+
+  tags = var.tags
+}
+
+# Front Door Origin Group (backend pool configuration)
+resource "azurerm_cdn_frontdoor_origin_group" "main" {
+  name                     = "container-app-origin-group"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+
+  load_balancing {
+    additional_latency_in_milliseconds = 50
+    sample_size                        = 4
+    successful_samples_required        = 3
+  }
+
+  health_probe {
+    protocol            = "Https"
+    path                = "/"
+    request_type        = "GET"
+    interval_in_seconds = 100
+  }
+}
+
+# Front Door Origin (Container App backend)
+resource "azurerm_cdn_frontdoor_origin" "container_app" {
+  name                           = "container-app-origin"
+  cdn_frontdoor_origin_group_id  = azurerm_cdn_frontdoor_origin_group.main.id
+  enabled                        = true
+  host_name                      = azurerm_container_app.web.ingress[0].fqdn
+  http_port                      = 80
+  https_port                     = 443
+  origin_host_header             = azurerm_container_app.web.ingress[0].fqdn
+  priority                       = 1
+  weight                         = 1000
+  certificate_name_check_enabled = true
+}
+
+# Front Door Route (routing rules)
+resource "azurerm_cdn_frontdoor_route" "main" {
+  name                          = "default-route"
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.main.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.main.id
+  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.container_app.id]
+  
+  supported_protocols = ["Http", "Https"]
+  patterns_to_match   = ["/*"]
+  forwarding_protocol = "HttpsOnly"
+  https_redirect_enabled = true
+  link_to_default_domain = true
+
+  # Cache configuration for static assets and API responses
+  cache {
+    query_string_caching_behavior = "IgnoreSpecifiedQueryStrings"
+    query_strings                 = ["utm_source", "utm_medium", "utm_campaign"]
+    compression_enabled           = true
+    content_types_to_compress = [
+      "application/javascript",
+      "application/json",
+      "application/xml",
+      "text/css",
+      "text/html",
+      "text/javascript",
+      "text/plain"
+    ]
+  }
+}
+
+# Note: WAF managed rules require Premium tier ($400+/month)
+# Standard tier provides excellent CDN caching at ~$50/month
+# For WAF protection, uncomment and upgrade sku_name to Premium_AzureFrontDoor
+
+# Front Door Security Policy (WAF) - Commented out for Standard tier
+# resource "azurerm_cdn_frontdoor_security_policy" "main" {
+#   name                     = "security-policy"
+#   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+#
+#   security_policies {
+#     firewall {
+#       cdn_frontdoor_firewall_policy_id = azurerm_cdn_frontdoor_firewall_policy.main.id
+#
+#       association {
+#         domain {
+#           cdn_frontdoor_domain_id = azurerm_cdn_frontdoor_endpoint.main.id
+#         }
+#         patterns_to_match = ["/*"]
+#       }
+#     }
+#   }
+# }
+
+# Front Door WAF Policy - Requires Premium tier
+# resource "azurerm_cdn_frontdoor_firewall_policy" "main" {
+#   name                = "${var.project_name}waf${random_string.suffix.result}"
+#   resource_group_name = azurerm_resource_group.main.name
+#   sku_name            = "Premium_AzureFrontDoor"
+#   mode                = "Prevention"
+#   enabled             = true
+#
+#   managed_rule {
+#     type    = "Microsoft_DefaultRuleSet"
+#     version = "2.1"
+#     action  = "Block"
+#   }
+#
+#   managed_rule {
+#     type    = "Microsoft_BotManagerRuleSet"
+#     version = "1.0"
+#     action  = "Block"
+#   }
+#
+#   tags = var.tags
+# }
