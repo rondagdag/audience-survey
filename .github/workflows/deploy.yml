@@ -53,6 +53,8 @@ jobs:
           IMAGE_LATEST="$ACR_LOGIN_SERVER/$PROJECT_NAME/web:latest"
           echo "Building $IMAGE for linux/amd64"
           docker buildx build --platform linux/amd64 -t "$IMAGE" -t "$IMAGE_LATEST" --push .
+          echo "Waiting 30 seconds for image to propagate..."
+          sleep 30
 
       - name: Get secrets from Key Vault
         id: get_secrets
@@ -71,27 +73,46 @@ jobs:
           IMAGE="$ACR_LOGIN_SERVER/$PROJECT_NAME/web:${{ github.sha }}"
           
           # Get the Container App's managed identity client ID
+          echo "Fetching managed identity..."
           MANAGED_IDENTITY_CLIENT_ID=$(az containerapp show \
             --name $CONTAINER_APP_NAME \
             --resource-group $RESOURCE_GROUP_NAME \
             --query "identity.userAssignedIdentities.*.clientId | [0]" -o tsv)
           
-          echo "Updating Container App with image: $IMAGE"
-          echo "Using managed identity: $MANAGED_IDENTITY_CLIENT_ID"
+          if [ -z "$MANAGED_IDENTITY_CLIENT_ID" ]; then
+            echo "Warning: No managed identity found, proceeding without AZURE_CLIENT_ID"
+          else
+            echo "Using managed identity: $MANAGED_IDENTITY_CLIENT_ID"
+          fi
           
-          # Update the container image and environment variables
-          az containerapp update \
-            --name $CONTAINER_APP_NAME \
-            --resource-group $RESOURCE_GROUP_NAME \
-            --image "$IMAGE" \
-            --set-env-vars \
-              NODE_ENV=production \
-              AZURE_CONTENT_ENDPOINT="${{ steps.get_secrets.outputs.azure_content_endpoint }}" \
-              AZURE_CONTENT_KEY="${{ steps.get_secrets.outputs.azure_content_key }}" \
-              AZURE_ANALYZER_ID=audience-survey \
-              AZURE_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME \
-              AZURE_STORAGE_CONTAINER_NAME=uploads \
-              AZURE_CLIENT_ID=$MANAGED_IDENTITY_CLIENT_ID \
-              ADMIN_SECRET="${{ steps.get_secrets.outputs.admin_secret }}" \
-              PORT=3000 \
-              NEXT_TELEMETRY_DISABLED=1
+          echo "Updating Container App with image: $IMAGE"
+          
+          # Update the container image and environment variables with retry logic
+          for i in 1 2 3; do
+            echo "Attempt $i of 3..."
+            if az containerapp update \
+              --name $CONTAINER_APP_NAME \
+              --resource-group $RESOURCE_GROUP_NAME \
+              --image "$IMAGE" \
+              --set-env-vars \
+                NODE_ENV=production \
+                AZURE_CONTENT_ENDPOINT="${{ steps.get_secrets.outputs.azure_content_endpoint }}" \
+                AZURE_CONTENT_KEY="${{ steps.get_secrets.outputs.azure_content_key }}" \
+                AZURE_ANALYZER_ID=audience-survey \
+                AZURE_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME \
+                AZURE_STORAGE_CONTAINER_NAME=uploads \
+                AZURE_CLIENT_ID=$MANAGED_IDENTITY_CLIENT_ID \
+                ADMIN_SECRET="${{ steps.get_secrets.outputs.admin_secret }}" \
+                PORT=3000 \
+                NEXT_TELEMETRY_DISABLED=1; then
+              echo "Container app updated successfully"
+              break
+            else
+              if [ $i -eq 3 ]; then
+                echo "Failed to update container app after 3 attempts"
+                exit 1
+              fi
+              echo "Update failed, waiting 30 seconds before retry..."
+              sleep 30
+            fi
+          done
