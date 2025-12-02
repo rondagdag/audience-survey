@@ -491,6 +491,7 @@ resource "azurerm_cdn_frontdoor_route" "main" {
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.main.id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.main.id
   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.container_app.id]
+  enabled                       = true
   
   supported_protocols = ["Http", "Https"]
   patterns_to_match   = ["/*"]
@@ -498,21 +499,12 @@ resource "azurerm_cdn_frontdoor_route" "main" {
   https_redirect_enabled = true
   link_to_default_domain = true
 
-  # Cache configuration for static assets and API responses
-  cache {
-    query_string_caching_behavior = "IgnoreSpecifiedQueryStrings"
-    query_strings                 = ["utm_source", "utm_medium", "utm_campaign"]
-    compression_enabled           = true
-    content_types_to_compress = [
-      "application/javascript",
-      "application/json",
-      "application/xml",
-      "text/css",
-      "text/html",
-      "text/javascript",
-      "text/plain"
-    ]
-  }
+  # Cache disabled temporarily to debug HTTP/2 protocol errors
+  # cache {
+  #   query_string_caching_behavior = "IgnoreSpecifiedQueryStrings"
+  #   query_strings                 = ["utm_source", "utm_medium", "utm_campaign"]
+  #   compression_enabled           = false
+  # }
 }
 
 # Note: WAF managed rules require Premium tier ($400+/month)
